@@ -2,6 +2,7 @@ package paas.storage.distributedFileSystem;
 
 import paas.storage.distributedFileSystem.connection.response.CreateResponse;
 import paas.storage.distributedFileSystem.file.response.FileExistResponse;
+import paas.storage.distributedFileSystem.file.response.GetFileInfoResponse;
 import paas.storage.distributedFileSystem.file.response.GetFileListResponse;
 import paas.storage.distributedFileSystem.file.response.RenameResponse;
 import paas.storage.utils.Response;
@@ -91,6 +92,33 @@ public class FileImpl implements IFile {
      */
     @Override
     public FileExistResponse fileExist(String connectionId, String filePath) {
+        return null;
+    }
+
+    /**
+     * 获取文件属性
+     *
+     * @param connectionId
+     * @param fileName
+     * @return
+     */
+    @Override
+    public GetFileInfoResponse getFileInfo(String connectionId, String fileName) {
+        return null;
+    }
+
+    /**
+     * 文件权限设置
+     *
+     * @param fullPath
+     * @param userGroup
+     * @param user
+     * @param authority
+     * @param beInherit
+     * @return
+     */
+    @Override
+    public Response setAuthority(String fullPath, String userGroup, String user, String authority, int beInherit) {
         return null;
     }
 

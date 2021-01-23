@@ -2,12 +2,13 @@ package paas.storage.distributedFileSystem;
 
 import paas.storage.distributedFileSystem.connection.response.CreateResponse;
 import paas.storage.distributedFileSystem.file.response.FileExistResponse;
+import paas.storage.distributedFileSystem.file.response.GetFileInfoResponse;
 import paas.storage.distributedFileSystem.file.response.GetFileListResponse;
 import paas.storage.distributedFileSystem.file.response.RenameResponse;
 import paas.storage.utils.Response;
 
 /**
- * 文件访问服务层
+ * 文件访问 服务层
  *
  * @author luowei
  * Creation time 2021/1/23 18:58
@@ -75,4 +76,26 @@ public interface IFile {
      * @return
      */
     FileExistResponse fileExist(String connectionId, String filePath);
+
+    /**
+     * 获取文件属性
+     *
+     * @param connectionId
+     * @param fileName
+     * @return
+     */
+    GetFileInfoResponse getFileInfo(String connectionId, String fileName);
+
+    /**
+     * 文件权限设置
+     *
+     * @param fullPath
+     * @param userGroup
+     * @param user
+     * @param authority
+     * @param beInherit
+     * @return
+     */
+    Response setAuthority(String fullPath, String userGroup, String user, String authority, int beInherit);
+
 }
