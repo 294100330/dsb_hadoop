@@ -14,8 +14,8 @@ public class ConnectionImpl implements IConnection {
     /**
      * 创建文件系统连接
      *
-     * @param serviceId    必填 服务唯一标识 分布式文件系统服务唯一标识。
-     * @param accessToken  必填 用户身份令牌  支持OAuth、LDAP等身份认证协议的TOKEN。
+     * @param serviceId 必填 服务唯一标识 分布式文件系统服务唯一标识。
+     * @param accessToken 必填 用户身份令牌  支持OAuth、LDAP等身份认证协议的TOKEN。
      * @param expendParams 可选
      * @return
      */
@@ -23,6 +23,7 @@ public class ConnectionImpl implements IConnection {
     public CreateResponse create(String serviceId, String accessToken, String expendParams) {
         return null;
     }
+
 
     /**
      * 关闭文件系统连接
