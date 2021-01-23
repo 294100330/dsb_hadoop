@@ -14,10 +14,10 @@ public class FileStreamImpl implements IFileStream {
     /**
      * 创建流
      *
-     * @param connectionId
-     * @param filePath
-     * @param streamType
-     * @param mode
+     * @param connectionId 必填 文件系统连接标识
+     * @param filePath     必填文件路径 文件的绝对路径。
+     * @param streamType   必填 流类型 1：输入流；2:输出流。
+     * @param mode         可选 写入模式 1表示追加，2表示覆盖。
      * @return
      */
     @Override
@@ -28,10 +28,10 @@ public class FileStreamImpl implements IFileStream {
     /**
      * 文件流读取
      *
-     * @param streamId
-     * @param byteArray
-     * @param offSet
-     * @param length
+     * @param streamId  必填 流对象唯一标识
+     * @param byteArray 必填 字节数组
+     * @param offSet    必填 偏移量
+     * @param length    必填 长度
      * @return
      */
     @Override
@@ -42,9 +42,9 @@ public class FileStreamImpl implements IFileStream {
     /**
      * 逐行读取
      *
-     * @param streamId
-     * @param encode
-     * @param readMethod
+     * @param streamId   必填 流对象唯一标识
+     * @param encode     可选 文件编码
+     * @param readMethod 必填 读取方法 1表示逐行读取；2 表示全部读取。
      * @return
      */
     @Override
@@ -55,10 +55,10 @@ public class FileStreamImpl implements IFileStream {
     /**
      * 文件流写入
      *
-     * @param streamId
-     * @param byteArray
-     * @param offSet
-     * @param length
+     * @param streamId  必填 流对象唯一标识
+     * @param byteArray 必填 字节数组
+     * @param offSet    必填 偏移量
+     * @param length    必填 长度
      * @return
      */
     @Override
@@ -69,8 +69,8 @@ public class FileStreamImpl implements IFileStream {
     /**
      * 逐行写入
      *
-     * @param streamId
-     * @param string
+     * @param streamId 必填 流对象唯一标识
+     * @param string   必填 字符串
      * @return
      */
     @Override
@@ -79,8 +79,9 @@ public class FileStreamImpl implements IFileStream {
     }
 
     /**
-     *关闭流
-     * @param streamId
+     * 关闭流
+     *
+     * @param streamId 必填 流对象唯一标识
      * @return
      */
     @Override
