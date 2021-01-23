@@ -1,4 +1,4 @@
-package paas.storage;
+package com.dsb.hadoop;
 
 import lombok.extern.java.Log;
 import org.apache.hadoop.conf.Configuration;
