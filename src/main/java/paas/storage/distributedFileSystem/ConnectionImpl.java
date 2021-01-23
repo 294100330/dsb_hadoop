@@ -14,8 +14,8 @@ public class ConnectionImpl implements IConnection {
     /**
      * 创建文件系统连接
      *
-     * @param serviceId
-     * @param accessToken
+     * @param serviceId 服务唯一标识 分布式文件系统服务唯一标识。
+     * @param accessToken 用户身份令牌  支持OAuth、LDAP等身份认证协议的TOKEN。
      * @param expendParams
      * @return
      */
