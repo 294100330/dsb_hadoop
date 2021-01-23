@@ -13,12 +13,12 @@ public class IStorageImpl implements IStorage {
     /**
      * 存储容量及使用量
      *
-     * @param streamId
-     * @param directory
+     * @param connectionId 必填 文件系统连接标识
+     * @param directory    必填 目录
      * @return
      */
     @Override
-    public StorageResponse getStorageInfo(String streamId, String directory) {
+    public StorageResponse getStorageInfo(String connectionId, String directory) {
         return null;
     }
 }
