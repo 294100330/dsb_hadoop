@@ -1,4 +1,4 @@
-package com.cictec.hadoop;
+package paas.storage;
 
 import lombok.extern.java.Log;
 import org.apache.hadoop.conf.Configuration;
@@ -31,7 +31,9 @@ public class HdfsOperation {
 		} catch (Exception e) {
 			log.log(Level.SEVERE, e.getMessage(), e);
 		}
-        hdfsOperation.mkdir("/doushabao");
+		hdfsOperation.copyLocalFileToHDFS("D:\\hadoop.txt","doushabao/hadoop.txt");
+        hdfsOperation.checkFileExist("doushabao/hadoop.txt");
+        hdfsOperation.downloadFileFromHdfs("doushabao/hadoop.txt","F:\\doushabao\\hadoop.txt");
     }
 
     /**
@@ -43,7 +45,7 @@ public class HdfsOperation {
     public static FileSystem getFileSystem() throws URISyntaxException, IOException, InterruptedException {
         // 获取FileSystem类的方法有很多种，这里只写一种
         Configuration config = new Configuration();
-        URI uri = new URI("hdfs://192.168.5.2:50070");
+        URI uri = new URI("hdfs://192.168.5.2:9000");
 		FileSystem fileSystem = FileSystem.get(uri, config, "root");
         return fileSystem;// 第一位为uri，第二位为config，第三位是登录的用户
     }

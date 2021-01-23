@@ -1,4 +1,4 @@
-package com.dsb.hadoop;
+package paas.storage;
 
 import lombok.SneakyThrows;
 import org.apache.hadoop.conf.Configuration;
