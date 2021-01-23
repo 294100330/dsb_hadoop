@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  cloudera:
+    image: gethue/hue:latest
+    hostname: hue
+    container_name: hue
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./conf:/usr/share/hue/desktop/conf:rw
