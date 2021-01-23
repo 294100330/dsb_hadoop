@@ -1,10 +1,6 @@
 package paas.storage.distributedFileSystem;
 
-import paas.storage.distributedFileSystem.connection.response.CreateResponse;
-import paas.storage.distributedFileSystem.file.response.FileExistResponse;
-import paas.storage.distributedFileSystem.file.response.GetFileInfoResponse;
-import paas.storage.distributedFileSystem.file.response.GetFileListResponse;
-import paas.storage.distributedFileSystem.file.response.RenameResponse;
+import paas.storage.distributedFileSystem.file.response.*;
 import paas.storage.utils.Response;
 
 /**
