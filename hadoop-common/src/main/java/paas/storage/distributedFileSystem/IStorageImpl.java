@@ -1,5 +1,6 @@
 package paas.storage.distributedFileSystem;
 
+import org.springframework.context.annotation.Configuration;
 import paas.storage.distributedFileSystem.storage.response.StorageResponse;
 
 /**
@@ -8,6 +9,7 @@ import paas.storage.distributedFileSystem.storage.response.StorageResponse;
  * @author luowei
  * Creation time 2021/1/23 19:22
  */
+@Configuration
 public class IStorageImpl implements IStorage {
 
     /**

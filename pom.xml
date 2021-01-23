@@ -22,9 +22,16 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spring-boot-starter-parent.version>2.3.3.RELEASE</spring-boot-starter-parent.version>
         <org.apache.hadoop.version>2.9.2</org.apache.hadoop.version>
+        <swagger.fox.version>2.9.2</swagger.fox.version>
+        <knife4j.version>2.0.4</knife4j.version>
     </properties>
 
     <dependencies>
+        <!-- lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
         <!-- spring -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -32,16 +39,8 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-        </dependency>
-        <!-- lombok -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
@@ -56,14 +55,41 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
+                <groupId>com.github.xiaoymin</groupId>
+                <artifactId>knife4j-dependencies</artifactId>
+                <version>2.0.5</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
                 <groupId>com.dsb.hadoop</groupId>
                 <artifactId>hadoop-common</artifactId>
                 <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.hadoop</groupId>
                 <artifactId>hadoop-common</artifactId>
                 <version>${org.apache.hadoop.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.hadoop</groupId>
@@ -74,6 +100,16 @@
                 <groupId>org.apache.hadoop</groupId>
                 <artifactId>hadoop-hdfs</artifactId>
                 <version>${org.apache.hadoop.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -91,14 +127,16 @@
             </resource>
         </resources>
         <plugins>
-            <!-- 打包工具 -->
+            <!--代码编译指定版本插件-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <target>${maven.compiler.target}</target>
+                    <source>${maven.compiler.source}</source>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <skip>true</skip>
+                </configuration>
             </plugin>
         </plugins>
         <pluginManagement>

@@ -1,5 +1,6 @@
 package paas.storage.distributedFileSystem;
 
+import org.springframework.context.annotation.Configuration;
 import paas.storage.distributedFileSystem.file.response.*;
 import paas.storage.utils.Response;
 
@@ -9,6 +10,7 @@ import paas.storage.utils.Response;
  * @author luowei
  * Creation time 2021/1/23 18:58
  */
+@Configuration
 public class FileImpl implements IFile {
 
     /**

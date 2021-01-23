@@ -19,6 +19,7 @@ public class Response {
 
 
     private int taskStatus;
+
     private int errorCode;
 
     private String errorMsg;
