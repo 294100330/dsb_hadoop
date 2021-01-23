@@ -14,8 +14,8 @@ public interface IFile {
     /**
      * 创建目录
      *
-     * @param connectionId
-     * @param filePath
+     * @param connectionId 必填 文件系统连接标识
+     * @param filePath 必填 目录路径
      * @return
      */
     CreateResponse create(String connectionId, String filePath);
