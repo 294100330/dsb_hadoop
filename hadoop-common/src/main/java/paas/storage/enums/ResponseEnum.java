@@ -13,21 +13,17 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ResponseEnum {
 
-    Fail(0, 0, "失败"),
-    Success(1, 0, "成功");
+    Fail(0,  "失败"),
+    Success(1,  "成功");
 
     /**
      * 状态码
      */
-    private final int status;
+    private final int taskStatus;
 
-    /**
-     * 错误码
-     */
-    private final int errorCode;
 
     /**
      * 基础错误信息
      */
-    private final String errorMsg;
+    private final String msg;
 }

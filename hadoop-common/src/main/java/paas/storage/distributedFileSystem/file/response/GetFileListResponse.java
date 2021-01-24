@@ -9,4 +9,7 @@ import paas.storage.utils.Response;
  */
 @Data
 public class GetFileListResponse  extends Response {
+
+    private String fileList;
+
 }

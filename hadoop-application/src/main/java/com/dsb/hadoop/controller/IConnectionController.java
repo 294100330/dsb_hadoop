@@ -28,4 +28,10 @@ public class IConnectionController {
     public Response create(String serviceId, String accessToken, String expendParams) {
         return iConnection.create(serviceId, accessToken, expendParams);
     }
+
+    @PostMapping("close")
+    @ApiOperation("关闭")
+    public Response close(String connectionId) {
+        return iConnection.close(connectionId);
+    }
 }

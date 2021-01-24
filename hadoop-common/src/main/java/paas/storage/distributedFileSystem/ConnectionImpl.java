@@ -1,13 +1,10 @@
 package paas.storage.distributedFileSystem;
 
-import org.apache.hadoop.fs.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import paas.storage.component.ConnectionService;
 import paas.storage.distributedFileSystem.connection.response.CreateResponse;
 import paas.storage.utils.Response;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 文件系统连接 实现层
@@ -18,10 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Configuration
 public class ConnectionImpl implements IConnection {
 
-    private final static Map<String, FileSystem> FILE_SYSTEM_CONCURRENT_MAP = new ConcurrentHashMap<>();
-
     @Autowired
-    private FileSystem fileSystem;
+    private ConnectionService connectionService;
 
     /**
      * 创建文件系统连接
@@ -33,7 +28,10 @@ public class ConnectionImpl implements IConnection {
      */
     @Override
     public CreateResponse create(String serviceId, String accessToken, String expendParams) {
-        return null;
+        String connectionId = connectionService.create(serviceId);
+        CreateResponse createResponse = new CreateResponse();
+        createResponse.setConnectionId(connectionId);
+        return createResponse;
     }
 
 
@@ -45,6 +43,8 @@ public class ConnectionImpl implements IConnection {
      */
     @Override
     public Response close(String connectionId) {
-        return null;
+        connectionService.delete(connectionId);
+        Response response = new Response();
+        return response;
     }
 }

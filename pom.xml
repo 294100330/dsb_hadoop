@@ -24,6 +24,7 @@
         <org.apache.hadoop.version>2.9.2</org.apache.hadoop.version>
         <swagger.fox.version>2.9.2</swagger.fox.version>
         <knife4j.version>2.0.4</knife4j.version>
+        <cn.hutool.version>5.5.7</cn.hutool.version>
     </properties>
 
     <dependencies>
@@ -31,6 +32,10 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
         </dependency>
         <!-- spring -->
         <dependency>
@@ -110,6 +115,11 @@
                         <artifactId>servlet-api</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>${cn.hutool.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

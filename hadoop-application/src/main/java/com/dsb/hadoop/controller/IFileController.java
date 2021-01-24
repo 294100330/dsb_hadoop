@@ -1,27 +1,28 @@
-package paas.storage.distributedFileSystem;
+package com.dsb.hadoop.controller;
 
-import cn.hutool.json.JSONUtil;
-import lombok.SneakyThrows;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
-import paas.storage.component.ConnectionService;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import paas.storage.distributedFileSystem.IFile;
 import paas.storage.distributedFileSystem.file.response.*;
 import paas.storage.utils.Response;
 
 /**
- * 文件访问 实现层
+ * 文件访问 接口层
  *
  * @author luowei
- * Creation time 2021/1/23 18:58
+ * Creation time 2021/1/24 17:44
  */
-@Configuration
-public class FileImpl implements IFile {
+@Api(tags = "文件访问 API")
+@RestController
+@RequestMapping("i_file")
+public class IFileController {
 
     @Autowired
-    private ConnectionService connectionService;
+    private IFile iFile;
 
     /**
      * 创建目录
@@ -30,14 +31,10 @@ public class FileImpl implements IFile {
      * @param filePath     必填 目录路径
      * @return
      */
-    @Override
-    @SneakyThrows
+    @PostMapping("create")
+    @ApiOperation("创建目录")
     public CreateResponse create(String connectionId, String filePath) {
-        FileSystem fileSystem = connectionService.get(connectionId);
-        fileSystem.mkdirs(new Path(filePath));
-        CreateResponse createResponse = new CreateResponse();
-        createResponse.setFilePath(filePath);
-        return createResponse;
+        return iFile.create(connectionId, filePath);
     }
 
     /**
@@ -49,31 +46,24 @@ public class FileImpl implements IFile {
      * @param recursive    必填 是否递归 1表示是，2表示否。
      * @return
      */
-    @Override
-    @SneakyThrows
+    @PostMapping("delete")
+    @ApiOperation("删除文件")
     public Response delete(String connectionId, String filePath, int objectType, int recursive) {
-        FileSystem fileSystem = connectionService.get(connectionId);
-        Path path = new Path(filePath);
-        fileSystem.delete(path, 1 == objectType);
-        return null;
+        return iFile.delete(connectionId, filePath, objectType, recursive);
     }
 
     /**
      * 重命名文件
      *
-     * @param connectionId
-     * @param srcPath
-     * @param dstPath
+     * @param connectionId 必填 文件系统连接标识
+     * @param srcPath      必填 源文件 填写完整的文件路径或目录。
+     * @param dstPath      必填 目标文件 此参数填写新文件名。
      * @return
      */
-    @Override
-    @SneakyThrows
+    @PostMapping("rename")
+    @ApiOperation("重命名文件")
     public RenameResponse rename(String connectionId, String srcPath, String dstPath) {
-        FileSystem fileSystem = connectionService.get(connectionId);
-        fileSystem.rename(new Path(srcPath), new Path(dstPath));
-        RenameResponse response = new RenameResponse();
-        response.setDstFile(dstPath);
-        return response;
+        return iFile.rename(connectionId, srcPath, dstPath);
     }
 
     /**
@@ -86,12 +76,10 @@ public class FileImpl implements IFile {
      * @param overwrite    必填  是否覆盖 1表示是；2表示否。若移动、复制操作出现，重名的文件或目录，选择是否需要覆盖。
      * @return
      */
-    @Override
-    @SneakyThrows
+    @PostMapping("rename")
+    @ApiOperation("重命名文件")
     public Response move(String connectionId, String srcPath, String dstPath, int operator, int overwrite) {
-        FileSystem fileSystem = connectionService.get(connectionId);
-        fileSystem.moveToLocalFile(new Path(srcPath), new Path(dstPath));
-        return new Response();
+        return iFile.move(connectionId, srcPath, dstPath, operator, overwrite);
     }
 
     /**
@@ -103,14 +91,10 @@ public class FileImpl implements IFile {
      * @param recursive    是否 递归  1表示递归，0表示不递归。
      * @return
      */
-    @Override
-    @SneakyThrows
+    @PostMapping("getFileList")
+    @ApiOperation("获取文件列表")
     public GetFileListResponse getFileList(String connectionId, String filePath, String filter, int recursive) {
-        FileSystem fileSystem = connectionService.get(connectionId);
-        FileStatus[] fileStatuses = fileSystem.listStatus(new Path(filePath));
-        GetFileListResponse getFileListResponse = new GetFileListResponse();
-        getFileListResponse.setFileList(fileStatuses.toString());
-        return getFileListResponse;
+        return iFile.getFileList(connectionId, filePath, filter, recursive);
     }
 
     /**
@@ -120,14 +104,10 @@ public class FileImpl implements IFile {
      * @param filePath     必填 文件路径 填写完整的文件路径或目录。
      * @return
      */
-    @Override
-    @SneakyThrows
+    @PostMapping("fileExist")
+    @ApiOperation("判断文件是否存在")
     public FileExistResponse fileExist(String connectionId, String filePath) {
-        FileSystem fileSystem = connectionService.get(connectionId);
-        boolean exists = fileSystem.exists(new Path(filePath));
-        FileExistResponse fileExistResponse = new FileExistResponse();
-        fileExistResponse.setResult(exists ? 1 : 0);
-        return fileExistResponse;
+        return iFile.fileExist(connectionId, filePath);
     }
 
     /**
@@ -137,15 +117,11 @@ public class FileImpl implements IFile {
      * @param fileName     必填 文件名  填写文件名称或目录。
      * @return
      */
-    @Override
-    @SneakyThrows
+    @PostMapping("getFileInfo")
+    @ApiOperation("获取文件属性")
     public GetFileInfoResponse getFileInfo(String connectionId, String fileName) {
-        FileSystem fileSystem = connectionService.get(connectionId);
-        FileStatus fileStatus = fileSystem.getFileStatus(new Path(fileName));
-        GetFileInfoResponse getFileInfoResponse = new GetFileInfoResponse();
-        String jsonText = JSONUtil.toJsonStr(fileStatus);
-        getFileInfoResponse.setFileDetails(jsonText);
-        return getFileInfoResponse;
+        return iFile.getFileInfo(connectionId, fileName);
+
     }
 
     /**
@@ -158,12 +134,10 @@ public class FileImpl implements IFile {
      * @param beInherit 可选 是否子目录继承 1表示是，2表示否；默认为否。
      * @return
      */
-    @Override
+    @PostMapping("setAuthority")
+    @ApiOperation("文件权限设置")
     public Response setAuthority(String fullPath, String userGroup, String user, String authority, int beInherit) {
-//        FileSystem fileSystem = connectionService.get(connectionId);
-
-        return null;
+        return iFile.setAuthority(fullPath, userGroup, user, authority, beInherit);
     }
-
 
 }
