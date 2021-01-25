@@ -81,7 +81,7 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
      * @return
      */
     private String putByServiceId(String serviceId) {
-        String connectionId = this.getConnectionId();
+        String connectionId = serviceId;
         FileSystemData fileSystemData = FileSystemData.builder().serviceId(serviceId).fileSystem(fileSystem).build();
         this.map.put(connectionId, fileSystemData);
         return connectionId;

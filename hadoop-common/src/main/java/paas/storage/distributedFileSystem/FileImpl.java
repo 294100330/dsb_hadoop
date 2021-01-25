@@ -38,7 +38,7 @@ public class FileImpl implements IFile {
         try {
             fileSystem.mkdirs(new Path(filePath));
         } catch (Exception e) {
-            log.error(e.getMessage(),e);
+            log.error(e.getMessage(), e);
         }
         CreateResponse createResponse = new CreateResponse();
         createResponse.setFilePath(filePath);
@@ -55,12 +55,15 @@ public class FileImpl implements IFile {
      * @return
      */
     @Override
-    @SneakyThrows
     public Response delete(String connectionId, String filePath, int objectType, int recursive) {
         FileSystem fileSystem = connectionService.get(connectionId);
         Path path = new Path(filePath);
-        fileSystem.delete(path, 1 == objectType);
-        return null;
+        try {
+            fileSystem.delete(path, 1 == objectType);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return new Response();
     }
 
     /**

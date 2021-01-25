@@ -2,10 +2,14 @@ package com.dsb.hadoop.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import paas.storage.component.ConnectionService;
 import paas.storage.distributedFileSystem.IFile;
 import paas.storage.distributedFileSystem.file.response.*;
 import paas.storage.utils.Response;

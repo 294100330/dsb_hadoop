@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 import paas.storage.distributedFileSystem.IConnection;
 import paas.storage.utils.Response;
 
+import javax.annotation.PostConstruct;
+
 /**
  * 文件系统连接 接口层
  *

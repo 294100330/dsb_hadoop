@@ -6,6 +6,8 @@ import paas.storage.component.ConnectionService;
 import paas.storage.distributedFileSystem.connection.response.CreateResponse;
 import paas.storage.utils.Response;
 
+import javax.annotation.PostConstruct;
+
 /**
  * 文件系统连接 实现层
  *
@@ -17,6 +19,11 @@ public class ConnectionImpl implements IConnection {
 
     @Autowired
     private ConnectionService connectionService;
+
+    @PostConstruct
+    public void setUp() {
+        this.create("1", "1", "");
+    }
 
     /**
      * 创建文件系统连接
