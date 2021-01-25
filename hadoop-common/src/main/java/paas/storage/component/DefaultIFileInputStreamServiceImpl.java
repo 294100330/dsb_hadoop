@@ -24,6 +24,13 @@ public class DefaultIFileInputStreamServiceImpl implements IFileInputStreamServi
 
     private static final Map<String, IFileInputStreamData> MAP = new ConcurrentHashMap<>();
 
+
+    /**
+     * 前缀
+     */
+    private static final String INPUT_STREAM_PREFIX = "inputStream:";
+
+
     @Autowired
     private ConnectionService connectionService;
 
@@ -77,7 +84,7 @@ public class DefaultIFileInputStreamServiceImpl implements IFileInputStreamServi
      * @return
      */
     private String getId() {
-        return IdUtil.simpleUUID();
+        return INPUT_STREAM_PREFIX + IdUtil.simpleUUID();
     }
 
     /**
@@ -87,16 +94,17 @@ public class DefaultIFileInputStreamServiceImpl implements IFileInputStreamServi
      * @return
      */
     private String put(String connectionId, String filePath) {
-        String streamId = this.getId();
+        String streamId = null;
         FileSystem fileSystem = connectionService.get(connectionId);
-        FSDataInputStream fsDataInputStream = null;
         try {
-            fsDataInputStream = fileSystem.open(new Path(filePath));
+            FSDataInputStream fsDataInputStream = fileSystem.open(new Path(filePath));
+            streamId = this.getId();
+            IFileInputStreamData fileSystemData = IFileInputStreamData.builder().connectionId(connectionId).filePath(filePath).fsDataInputStream(fsDataInputStream).build();
+            DefaultIFileInputStreamServiceImpl.MAP.put(streamId, fileSystemData);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
-        IFileInputStreamData fileSystemData = IFileInputStreamData.builder().connectionId(connectionId).filePath(filePath).fsDataInputStream(fsDataInputStream).build();
-        DefaultIFileInputStreamServiceImpl.MAP.put(streamId, fileSystemData);
+
         return streamId;
     }
 

@@ -1,5 +1,6 @@
 package com.dsb.hadoop;
 
+import lombok.SneakyThrows;
 import lombok.extern.java.Log;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -23,6 +24,7 @@ import java.util.logging.Level;
 public class HdfsOperation {
     private FileSystem hdfs;
 
+    @SneakyThrows
     public static void main(String[] args) {
 
         HdfsOperation hdfsOperation = new HdfsOperation();
@@ -31,11 +33,18 @@ public class HdfsOperation {
         } catch (Exception e) {
             log.log(Level.SEVERE, e.getMessage(), e);
         }
-        hdfsOperation.checkFileExist("doushabao/hadoop.txt");
-        hdfsOperation.mkdir("doushabao");
-        hdfsOperation.copyLocalFileToHDFS("D:\\hadoop.txt", "doushabao/hadoop.txt");
-        hdfsOperation.writerString("doushabao/hadoop.txt", "123456789");
-        hdfsOperation.readByLine("doushabao/upload.text");
+        hdfsOperation.delete("hadoop.txt");
+//        hdfsOperation.copyLocalFileToHDFS("D:\\hadoop.txt", "hadoop.txt");
+//        System.out.println(hdfsOperation.checkFileExist("hadoop.txt"));
+//        FileStatus fileStatus = hdfsOperation.hdfs.getFileStatus(new Path("hadoop.txt"));
+//        System.out.println(fileStatus);
+//        hdfsOperation.downloadFileFromHdfs("hadoop.txt", "E:");
+//        hdfsOperation.readByLine("doushabao/upload.text");
+
+//        hdfsOperation.readByLine("doushabao/hadoop.txt");
+//        hdfsOperation.mkdir("doushabao");
+//        hdfsOperation.copyLocalFileToHDFS("D:\\hadoop.txt", "doushabao/hadoop.txt");
+//        hdfsOperation.writerString("doushabao/hadoop.txt", "123456789");
 //        hdfsOperation.downloadFileFromHdfs("doushabao/hadoop.txt","F:\\doushabao\\hadoop.txt");
     }
 
@@ -168,7 +177,7 @@ public class HdfsOperation {
     public boolean copyLocalFileToHDFS(String localFilename, String hdfsPath) {
         try {
             // 如果路径不存在就创建文件夹
-            mkdir(hdfsPath);
+//            mkdir(hdfsPath);
 
             File file = new File(localFilename);
             FileInputStream is = new FileInputStream(file);

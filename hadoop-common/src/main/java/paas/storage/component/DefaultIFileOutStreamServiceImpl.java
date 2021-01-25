@@ -96,17 +96,19 @@ public class DefaultIFileOutStreamServiceImpl implements IFileOutStreamService {
      */
     @SuppressWarnings("all")
     private String put(String connectionId, String filePath) {
-        String streamId = this.getId();
+        String streamId = null;
         FileSystem fileSystem = connectionService.get(connectionId);
         FSDataOutputStream fsDataInputStream = null;
         try {
             fsDataInputStream = fileSystem.create(new Path(filePath));
+            streamId = this.getId();
+            DefaultIFileOutStreamServiceImpl.IFileOutStreamData fileOutStreamData = IFileOutStreamData
+                    .builder().connectionId(connectionId).filePath(filePath).fsDataOutputStream(fsDataInputStream).build();
+            DefaultIFileOutStreamServiceImpl.MAP.put(streamId, fileOutStreamData);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
-        DefaultIFileOutStreamServiceImpl.IFileOutStreamData fileOutStreamData = IFileOutStreamData
-                .builder().connectionId(connectionId).filePath(filePath).fsDataOutputStream(fsDataInputStream).build();
-        DefaultIFileOutStreamServiceImpl.MAP.put(streamId, fileOutStreamData);
+
         return streamId;
     }
 

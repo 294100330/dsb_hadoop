@@ -43,14 +43,6 @@ public class IFileController {
         return iFile.create(connectionId, filePath);
     }
 
-    @PostMapping("upload")
-    @ApiOperation("上传")
-    public String upload(String connectionId, MultipartFile multipartFile){
-        FileSystem fileSystem = connectionService.get(connectionId);
-//        fileSystem.
-        return null;
-    }
-
     /**
      * 删除文件
      *

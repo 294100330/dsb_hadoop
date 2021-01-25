@@ -6,6 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.permission.FsPermission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import paas.storage.component.ConnectionService;
@@ -169,7 +170,7 @@ public class FileImpl implements IFile {
     @Override
     public Response setAuthority(String fullPath, String userGroup, String user, String authority, int beInherit) {
 //        FileSystem fileSystem = connectionService.get(connectionId);
-
+//        fileSystem.setPermission(new Path(fullPath),FsPermission);
         return null;
     }
 
