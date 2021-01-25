@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import paas.storage.distributedFileSystem.IFile;
 import paas.storage.distributedFileSystem.file.response.*;
-import paas.storage.distributedFileSystem.connection.response.Response;
+import paas.storage.connection.Response;
 
 /**
  * 文件访问 接口层

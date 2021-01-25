@@ -1,7 +1,7 @@
 package paas.storage.distributedFileSystem;
 
 import paas.storage.distributedFileSystem.connection.response.CreateResponse;
-import paas.storage.distributedFileSystem.connection.response.Response;
+import paas.storage.connection.Response;
 
 /**
  * 文件系统连接 服务层

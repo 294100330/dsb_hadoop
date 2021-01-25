@@ -1,4 +1,4 @@
-package paas.storage.distributedFileSystem.connection.response;
+package paas.storage.connection;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,6 +1,6 @@
 package paas.storage.distributedFileSystem.fileStream.response;
 
-import paas.storage.distributedFileSystem.connection.response.Response;
+import paas.storage.connection.Response;
 
 /**
  * @author luowei

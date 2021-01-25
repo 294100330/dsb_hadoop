@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import paas.storage.component.ConnectionService;
 import paas.storage.distributedFileSystem.connection.response.CreateResponse;
-import paas.storage.distributedFileSystem.connection.response.Response;
+import paas.storage.connection.Response;
 
 import javax.annotation.PostConstruct;
 

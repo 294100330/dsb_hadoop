@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import paas.storage.component.ConnectionService;
 import paas.storage.distributedFileSystem.file.response.*;
-import paas.storage.distributedFileSystem.connection.response.Response;
+import paas.storage.connection.Response;
 
 /**
  * 文件访问 实现层

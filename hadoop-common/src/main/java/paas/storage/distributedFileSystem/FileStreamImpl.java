@@ -2,7 +2,7 @@ package paas.storage.distributedFileSystem;
 
 import org.springframework.context.annotation.Configuration;
 import paas.storage.distributedFileSystem.fileStream.response.*;
-import paas.storage.distributedFileSystem.connection.response.Response;
+import paas.storage.connection.Response;
 
 /**
  * 文件流管理 实现层
