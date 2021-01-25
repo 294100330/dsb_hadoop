@@ -38,11 +38,13 @@ public class DefaultIFileOutStreamServiceImpl implements IFileOutStreamService {
     /**
      * 创建
      *
-     * @param connectionId 分布式文件系统服务唯一标识。
+     * @param connectionId
+     * @param filePath
+     * @param mode
      * @return
      */
     @Override
-    public String create(String connectionId, String filePath) {
+    public String create(String connectionId, String filePath, int mode) {
         String streamId = null;
         for (Map.Entry<String, DefaultIFileOutStreamServiceImpl.IFileOutStreamData> entity : DefaultIFileOutStreamServiceImpl.MAP.entrySet()) {
             if (entity.getValue().getConnectionId().equals(connectionId)) {
@@ -98,12 +100,12 @@ public class DefaultIFileOutStreamServiceImpl implements IFileOutStreamService {
     private String put(String connectionId, String filePath) {
         String streamId = null;
         FileSystem fileSystem = connectionService.get(connectionId);
-        FSDataOutputStream fsDataInputStream = null;
+        FSDataOutputStream fsDataOutputStream = null;
         try {
-            fsDataInputStream = fileSystem.create(new Path(filePath));
+            fsDataOutputStream = fileSystem.create(new Path(filePath));
             streamId = this.getId();
             DefaultIFileOutStreamServiceImpl.IFileOutStreamData fileOutStreamData = IFileOutStreamData
-                    .builder().connectionId(connectionId).filePath(filePath).fsDataOutputStream(fsDataInputStream).build();
+                    .builder().connectionId(connectionId).filePath(filePath).fsDataOutputStream(fsDataOutputStream).build();
             DefaultIFileOutStreamServiceImpl.MAP.put(streamId, fileOutStreamData);
         } catch (IOException e) {
             log.error(e.getMessage(), e);

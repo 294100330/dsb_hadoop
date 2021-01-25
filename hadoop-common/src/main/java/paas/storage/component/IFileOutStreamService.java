@@ -13,10 +13,12 @@ public interface IFileOutStreamService {
     /**
      * 创建
      *
-     * @param connectionId 分布式文件系统服务唯一标识。
+     * @param connectionId
+     * @param filePath
+     * @param mode
      * @return
      */
-    String create(String connectionId, String filePath);
+    String create(String connectionId, String filePath, int mode);
 
     /**
      * 获取
@@ -24,7 +26,7 @@ public interface IFileOutStreamService {
      * @param streamId
      * @return
      */
-    FSDataOutputStream  get(String streamId);
+    FSDataOutputStream get(String streamId);
 
     /**
      * 删除

@@ -44,7 +44,7 @@ public class FileStreamImpl implements IFileStream {
         if (1 == streamType) {
             streamId = iFileInputStreamService.create(connectionId, filePath);
         } else if (2 == streamType) {
-            streamId = iFileOutStreamService.create(connectionId, filePath);
+            streamId = iFileOutStreamService.create(connectionId, filePath,mode);
         }
         CreateResponse createResponse = new CreateResponse();
         createResponse.setStreamId(streamId);
