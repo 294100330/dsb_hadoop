@@ -31,9 +31,11 @@ public class HdfsOperation {
         } catch (Exception e) {
             log.log(Level.SEVERE, e.getMessage(), e);
         }
+        hdfsOperation.checkFileExist("doushabao/hadoop.txt");
         hdfsOperation.mkdir("doushabao");
-//		hdfsOperation.copyLocalFileToHDFS("D:\\hadoop.txt","doushabao/hadoop.txt");
-//        hdfsOperation.checkFileExist("doushabao/hadoop.txt");
+        hdfsOperation.copyLocalFileToHDFS("D:\\hadoop.txt", "doushabao/hadoop.txt");
+        hdfsOperation.writerString("doushabao/hadoop.txt", "123456789");
+        hdfsOperation.readByLine("doushabao/upload.text");
 //        hdfsOperation.downloadFileFromHdfs("doushabao/hadoop.txt","F:\\doushabao\\hadoop.txt");
     }
 

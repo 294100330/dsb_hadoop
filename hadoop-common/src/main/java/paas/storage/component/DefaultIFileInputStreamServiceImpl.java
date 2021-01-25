@@ -96,7 +96,7 @@ public class DefaultIFileInputStreamServiceImpl implements IFileInputStreamServi
             log.error(e.getMessage(), e);
         }
         IFileInputStreamData fileSystemData = IFileInputStreamData.builder().connectionId(connectionId).filePath(filePath).fsDataInputStream(fsDataInputStream).build();
-        DefaultIFileInputStreamServiceImpl.MAP.put(connectionId, fileSystemData);
+        DefaultIFileInputStreamServiceImpl.MAP.put(streamId, fileSystemData);
         return streamId;
     }
 

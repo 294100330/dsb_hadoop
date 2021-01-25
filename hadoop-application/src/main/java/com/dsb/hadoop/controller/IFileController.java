@@ -2,10 +2,13 @@ package com.dsb.hadoop.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.hadoop.fs.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import paas.storage.component.ConnectionService;
 import paas.storage.distributedFileSystem.IFile;
 import paas.storage.distributedFileSystem.file.response.*;
 import paas.storage.connection.Response;
@@ -24,6 +27,9 @@ public class IFileController {
     @Autowired
     private IFile iFile;
 
+    @Autowired
+    private ConnectionService connectionService;
+
     /**
      * 创建目录
      *
@@ -35,6 +41,14 @@ public class IFileController {
     @ApiOperation("创建目录")
     public CreateResponse create(String connectionId, String filePath) {
         return iFile.create(connectionId, filePath);
+    }
+
+    @PostMapping("upload")
+    @ApiOperation("上传")
+    public String upload(String connectionId, MultipartFile multipartFile){
+        FileSystem fileSystem = connectionService.get(connectionId);
+//        fileSystem.
+        return null;
     }
 
     /**

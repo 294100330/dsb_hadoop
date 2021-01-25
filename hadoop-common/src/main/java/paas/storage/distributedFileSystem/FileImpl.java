@@ -117,7 +117,7 @@ public class FileImpl implements IFile {
         FileSystem fileSystem = connectionService.get(connectionId);
         FileStatus[] fileStatuses = fileSystem.listStatus(new Path(filePath));
         GetFileListResponse getFileListResponse = new GetFileListResponse();
-        getFileListResponse.setFileList(fileStatuses.toString());
+        getFileListResponse.setFileList(JSONUtil.toJsonStr(getFileListResponse));
         return getFileListResponse;
     }
 

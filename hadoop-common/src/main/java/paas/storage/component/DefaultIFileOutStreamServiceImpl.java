@@ -106,7 +106,7 @@ public class DefaultIFileOutStreamServiceImpl implements IFileOutStreamService {
         }
         DefaultIFileOutStreamServiceImpl.IFileOutStreamData fileOutStreamData = IFileOutStreamData
                 .builder().connectionId(connectionId).filePath(filePath).fsDataOutputStream(fsDataInputStream).build();
-        DefaultIFileOutStreamServiceImpl.MAP.put(connectionId, fileOutStreamData);
+        DefaultIFileOutStreamServiceImpl.MAP.put(streamId, fileOutStreamData);
         return streamId;
     }
 

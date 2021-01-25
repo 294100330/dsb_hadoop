@@ -4,23 +4,16 @@ services:
   namenode:
     image: bde2020/hadoop-namenode:1.1.0-hadoop2.7.1-java8
     container_name: namenode
-    networks:
-      - app_network
-    ports:
-    - 50070:50070
     volumes:
       - hadoop_namenode:/hadoop/dfs/name
     environment:
       - CLUSTER_NAME=test
     env_file:
       - ./hadoop.env
+
   resourcemanager:
     image: bde2020/hadoop-resourcemanager:1.1.0-hadoop2.7.1-java8
     container_name: resourcemanager
-    networks:
-      - app_network
-    ports:
-    - 8088:8088
     depends_on:
       - namenode
       - datanode1
@@ -31,14 +24,10 @@ services:
   historyserver:
     image: bde2020/hadoop-historyserver:1.1.0-hadoop2.7.1-java8
     container_name: historyserver
-    networks:
-      - app_network
     depends_on:
       - namenode
       - datanode1
       - datanode2
-    ports:
-    - 8188:8188
     volumes:
       - hadoop_historyserver:/hadoop/yarn/timeline
     env_file:
@@ -47,10 +36,6 @@ services:
   nodemanager1:
     image: bde2020/hadoop-nodemanager:1.1.0-hadoop2.7.1-java8
     container_name: nodemanager1
-    networks:
-      - app_network
-    ports:
-    - 8042:8042
     depends_on:
       - namenode
       - datanode1
@@ -61,8 +46,6 @@ services:
   datanode1:
     image: bde2020/hadoop-datanode:1.1.0-hadoop2.7.1-java8
     container_name: datanode1
-    networks:
-      - app_network
     depends_on:
       - namenode
     volumes:
@@ -73,8 +56,6 @@ services:
   datanode2:
     image: bde2020/hadoop-datanode:1.1.0-hadoop2.7.1-java8
     container_name: datanode2
-    networks:
-      - app_network
     depends_on:
       - namenode
     volumes:
@@ -85,8 +66,6 @@ services:
   datanode3:
     image: bde2020/hadoop-datanode:1.1.0-hadoop2.7.1-java8
     container_name: datanode3
-    networks:
-      - app_network
     depends_on:
       - namenode
     volumes:
@@ -100,7 +79,3 @@ volumes:
   hadoop_datanode2:
   hadoop_datanode3:
   hadoop_historyserver:
-
-networks:
-  app_network:
-    external: true
