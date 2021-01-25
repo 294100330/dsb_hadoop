@@ -1,10 +1,17 @@
 package paas.storage.distributedFileSystem;
 
+import lombok.extern.log4j.Log4j2;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import paas.storage.component.IFileInputStreamService;
-import paas.storage.distributedFileSystem.fileStream.response.*;
+import paas.storage.component.IFileOutStreamService;
 import paas.storage.connection.Response;
+import paas.storage.distributedFileSystem.fileStream.response.*;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 文件流管理 实现层
@@ -12,11 +19,15 @@ import paas.storage.connection.Response;
  * @author luowei
  * Creation time 2021/1/23 19:10
  */
+@Log4j2
 @Configuration
 public class FileStreamImpl implements IFileStream {
 
     @Autowired
     private IFileInputStreamService iFileInputStreamService;
+
+    @Autowired
+    private IFileOutStreamService iFileOutStreamService;
 
     /**
      * 创建流
@@ -29,8 +40,15 @@ public class FileStreamImpl implements IFileStream {
      */
     @Override
     public CreateResponse create(String connectionId, String filePath, int streamType, int mode) {
-        iFileInputStreamService.create(connectionId,filePath);
-        return null;
+        String streamId = null;
+        if (1 == streamType) {
+            streamId = iFileInputStreamService.create(connectionId, filePath);
+        } else if (2 == streamType) {
+            streamId = iFileOutStreamService.create(connectionId, filePath);
+        }
+        CreateResponse createResponse = new CreateResponse();
+        createResponse.setStreamId(streamId);
+        return createResponse;
     }
 
     /**
@@ -44,7 +62,15 @@ public class FileStreamImpl implements IFileStream {
      */
     @Override
     public ReadResponse read(String streamId, byte[] byteArray, int offSet, int length) {
-        return null;
+        FSDataInputStream fsDataInputStream = iFileInputStreamService.get(streamId);
+        try {
+            fsDataInputStream.read(byteArray, offSet, length);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ReadResponse readResponse = new ReadResponse();
+        readResponse.setLength(length);
+        return readResponse;
     }
 
     /**
@@ -57,7 +83,22 @@ public class FileStreamImpl implements IFileStream {
      */
     @Override
     public ReadlinesResponse readlines(String streamId, String encode, int readMethod) {
-        return null;
+        FSDataInputStream fsDataInputStream = iFileInputStreamService.get(streamId);
+        // 防止中文乱码
+        BufferedReader bf = new BufferedReader(new InputStreamReader(fsDataInputStream));
+        String line = null;
+        while (true) {
+            try {
+                if (((line = bf.readLine()) != null)) {
+                    break;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        ReadlinesResponse readlinesResponse = new ReadlinesResponse();
+        readlinesResponse.setStringList(new String(line.getBytes(), StandardCharsets.UTF_8));
+        return readlinesResponse;
     }
 
     /**
@@ -71,7 +112,15 @@ public class FileStreamImpl implements IFileStream {
      */
     @Override
     public WriteResponse write(String streamId, byte[] byteArray, int offSet, int length) {
-        return null;
+        FSDataOutputStream fsDataOutputStream = iFileOutStreamService.get(streamId);
+        try {
+            fsDataOutputStream.write(byteArray, offSet, offSet);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+        }
+        WriteResponse writeResponse = new WriteResponse();
+        writeResponse.setLength(length);
+        return writeResponse;
     }
 
     /**
@@ -83,7 +132,17 @@ public class FileStreamImpl implements IFileStream {
      */
     @Override
     public Response writeline(String streamId, String string) {
-        return null;
+        FSDataOutputStream fsDataOutputStream = iFileOutStreamService.get(streamId);
+
+        // 以UTF-8格式写入文件，不乱码
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fsDataOutputStream, StandardCharsets.UTF_8));
+        try {
+            writer.write(string);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+        }
+        Response response = new Response();
+        return response;
     }
 
     /**
@@ -94,7 +153,11 @@ public class FileStreamImpl implements IFileStream {
      */
     @Override
     public CloseResponse close(String streamId) {
-        return null;
+        iFileOutStreamService.delete(streamId);
+        iFileInputStreamService.delete(streamId);
+        CloseResponse closeResponse = new CloseResponse();
+        closeResponse.setStreamId(streamId);
+        return closeResponse;
     }
 
 

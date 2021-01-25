@@ -22,7 +22,15 @@ import java.util.concurrent.ConcurrentHashMap;
 @Log4j2
 public class DefaultIFileOutStreamServiceImpl implements IFileOutStreamService {
 
+    /**
+     * 流存放
+     */
     private static final Map<String, DefaultIFileOutStreamServiceImpl.IFileOutStreamData> MAP = new ConcurrentHashMap<>();
+
+    /**
+     * 前缀
+     */
+    private static final String OUT_STREAM_PREFIX = "outStream:";
 
     @Autowired
     private ConnectionService connectionService;
@@ -66,7 +74,9 @@ public class DefaultIFileOutStreamServiceImpl implements IFileOutStreamService {
      */
     @Override
     public void delete(String streamId) {
-        DefaultIFileOutStreamServiceImpl.MAP.remove(streamId);
+        if (streamId.contains(OUT_STREAM_PREFIX)) {
+            DefaultIFileOutStreamServiceImpl.MAP.remove(streamId);
+        }
     }
 
     /**
@@ -75,7 +85,7 @@ public class DefaultIFileOutStreamServiceImpl implements IFileOutStreamService {
      * @return
      */
     private String getId() {
-        return IdUtil.simpleUUID();
+        return OUT_STREAM_PREFIX + IdUtil.simpleUUID();
     }
 
     /**

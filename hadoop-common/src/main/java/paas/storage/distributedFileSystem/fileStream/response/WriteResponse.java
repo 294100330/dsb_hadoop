@@ -1,11 +1,13 @@
 package paas.storage.distributedFileSystem.fileStream.response;
 
+import lombok.Data;
 import paas.storage.connection.Response;
 
 /**
  * @author luowei
  * Creation time 2021/1/23 19:19
  */
+@Data
 public class WriteResponse extends Response {
     private long length;
 }
