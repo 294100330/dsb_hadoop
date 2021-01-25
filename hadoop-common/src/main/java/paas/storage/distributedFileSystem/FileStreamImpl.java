@@ -1,6 +1,8 @@
 package paas.storage.distributedFileSystem;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import paas.storage.component.IFileInputStreamService;
 import paas.storage.distributedFileSystem.fileStream.response.*;
 import paas.storage.connection.Response;
 
@@ -13,6 +15,9 @@ import paas.storage.connection.Response;
 @Configuration
 public class FileStreamImpl implements IFileStream {
 
+    @Autowired
+    private IFileInputStreamService iFileInputStreamService;
+
     /**
      * 创建流
      *
@@ -24,6 +29,7 @@ public class FileStreamImpl implements IFileStream {
      */
     @Override
     public CreateResponse create(String connectionId, String filePath, int streamType, int mode) {
+        iFileInputStreamService.create(connectionId,filePath);
         return null;
     }
 

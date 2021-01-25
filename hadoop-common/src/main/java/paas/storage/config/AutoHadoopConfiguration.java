@@ -8,10 +8,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
-import paas.storage.component.ConnectionService;
-import paas.storage.component.DefaultConnectionServiceImpl;
-import paas.storage.component.DefaultIFileInputStreamServiceImpl;
-import paas.storage.component.IFileInputStreamService;
+import paas.storage.component.*;
 import paas.storage.properties.HadoopProperties;
 
 import java.net.URI;
@@ -39,6 +36,12 @@ public class AutoHadoopConfiguration {
     @ConditionalOnMissingBean(IFileInputStreamService.class)
     public IFileInputStreamService iFileInputStreamService() {
         return new DefaultIFileInputStreamServiceImpl();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(IFileOutStreamService.class)
+    public IFileOutStreamService iFileOutStreamService() {
+        return new DefaultIFileOutStreamServiceImpl();
     }
 
     @Bean

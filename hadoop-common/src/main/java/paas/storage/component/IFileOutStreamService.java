@@ -1,14 +1,14 @@
 package paas.storage.component;
 
-import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
 
 /**
- * 文件流输入流管理 服务层
+ * 文件流输出流管理 服务层
  *
  * @author luowei
  * Creation time 2021/1/25 10:56
  */
-public interface IFileInputStreamService {
+public interface IFileOutStreamService {
 
     /**
      * 创建
@@ -24,7 +24,7 @@ public interface IFileInputStreamService {
      * @param streamId
      * @return
      */
-    FSDataInputStream get(String streamId);
+    FSDataOutputStream  get(String streamId);
 
     /**
      * 删除
@@ -32,5 +32,4 @@ public interface IFileInputStreamService {
      * @param streamId
      */
     void delete(String streamId);
-
 }
