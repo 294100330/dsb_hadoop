@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import paas.storage.component.ConnectionService;
 import paas.storage.component.DefaultConnectionServiceImpl;
+import paas.storage.component.DefaultIFileInputStreamServiceImpl;
+import paas.storage.component.IFileInputStreamService;
 import paas.storage.properties.HadoopProperties;
 
 import java.net.URI;
@@ -34,13 +36,19 @@ public class AutoHadoopConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean(IFileInputStreamService.class)
+    public IFileInputStreamService iFileInputStreamService() {
+        return new DefaultIFileInputStreamServiceImpl();
+    }
+
+    @Bean
     @Scope("prototype")
     public FileSystem fileSystem(HadoopProperties hadoopProperties) {
         // 文件系统
         FileSystem fileSystem = null;
         try {
             URI uri = new URI(hadoopProperties.getFsUri().trim());
-            fileSystem = FileSystem.get(uri, this.getConfiguration(hadoopProperties),hadoopProperties.getUser());
+            fileSystem = FileSystem.get(uri, this.getConfiguration(hadoopProperties), hadoopProperties.getUser());
         } catch (Exception e) {
             log.error("【FileSystem配置初始化失败】", e);
         }
