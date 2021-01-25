@@ -1,7 +1,7 @@
 package paas.storage.distributedFileSystem.file.response;
 
 import lombok.Data;
-import paas.storage.utils.Response;
+import paas.storage.distributedFileSystem.connection.response.Response;
 
 /**
  * @author luowei

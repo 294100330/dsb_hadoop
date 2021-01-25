@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import paas.storage.enums.ResponseEnum;
-import paas.storage.utils.Response;
+import paas.storage.distributedFileSystem.connection.response.Response;
 
 /**
  * @author luowei
