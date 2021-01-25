@@ -19,6 +19,11 @@ public class HadoopProperties {
     private String fsUri;
 
     /**
+     * 账号
+     */
+    private String user;
+
+    /**
      * 配置
      */
     private Map<String, String> config;

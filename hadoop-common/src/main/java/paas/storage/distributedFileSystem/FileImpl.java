@@ -2,6 +2,7 @@ package paas.storage.distributedFileSystem;
 
 import cn.hutool.json.JSONUtil;
 import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -17,6 +18,7 @@ import paas.storage.utils.Response;
  * @author luowei
  * Creation time 2021/1/23 18:58
  */
+@Log4j2
 @Configuration
 public class FileImpl implements IFile {
 
@@ -31,10 +33,13 @@ public class FileImpl implements IFile {
      * @return
      */
     @Override
-    @SneakyThrows
     public CreateResponse create(String connectionId, String filePath) {
         FileSystem fileSystem = connectionService.get(connectionId);
-        fileSystem.mkdirs(new Path(filePath));
+        try {
+            fileSystem.mkdirs(new Path(filePath));
+        } catch (Exception e) {
+            log.error(e.getMessage(),e);
+        }
         CreateResponse createResponse = new CreateResponse();
         createResponse.setFilePath(filePath);
         return createResponse;

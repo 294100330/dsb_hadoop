@@ -76,7 +76,7 @@ public class IFileController {
      * @param overwrite    必填  是否覆盖 1表示是；2表示否。若移动、复制操作出现，重名的文件或目录，选择是否需要覆盖。
      * @return
      */
-    @PostMapping("rename")
+    @PostMapping("move")
     @ApiOperation("重命名文件")
     public Response move(String connectionId, String srcPath, String dstPath, int operator, int overwrite) {
         return iFile.move(connectionId, srcPath, dstPath, operator, overwrite);

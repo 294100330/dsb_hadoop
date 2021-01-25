@@ -3,6 +3,7 @@ server:
 
 hadoop:
   fs-uri: hdfs://192.168.5.2:9000
+  user: root
   config:
     dfs:
       replication: 1

@@ -40,7 +40,7 @@ public class AutoHadoopConfiguration {
         FileSystem fileSystem = null;
         try {
             URI uri = new URI(hadoopProperties.getFsUri().trim());
-            fileSystem = FileSystem.get(uri, this.getConfiguration(hadoopProperties));
+            fileSystem = FileSystem.get(uri, this.getConfiguration(hadoopProperties),hadoopProperties.getUser());
         } catch (Exception e) {
             log.error("【FileSystem配置初始化失败】", e);
         }
