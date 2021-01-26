@@ -1,5 +1,6 @@
 package paas.storage.distributedFileSystem;
 
+import cn.hutool.core.io.FileUtil;
 import lombok.extern.log4j.Log4j2;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -44,7 +45,7 @@ public class FileStreamImpl implements IFileStream {
         if (1 == streamType) {
             streamId = iFileInputStreamService.create(connectionId, filePath);
         } else if (2 == streamType) {
-            streamId = iFileOutStreamService.create(connectionId, filePath,mode);
+            streamId = iFileOutStreamService.create(connectionId, filePath, mode);
         }
         CreateResponse createResponse = new CreateResponse();
         createResponse.setStreamId(streamId);
@@ -69,7 +70,7 @@ public class FileStreamImpl implements IFileStream {
             e.printStackTrace();
         }
         ReadResponse readResponse = new ReadResponse();
-        readResponse.setLength(length);
+        readResponse.setLength(byteArray.length);
         return readResponse;
     }
 
@@ -84,20 +85,28 @@ public class FileStreamImpl implements IFileStream {
     @Override
     public ReadlinesResponse readlines(String streamId, String encode, int readMethod) {
         FSDataInputStream fsDataInputStream = iFileInputStreamService.get(streamId);
-        // 防止中文乱码
-        BufferedReader bf = new BufferedReader(new InputStreamReader(fsDataInputStream));
-        String line = null;
-        while (true) {
+        ReadlinesResponse readlinesResponse = new ReadlinesResponse();
+        StringBuilder stringBuilder = new StringBuilder();
+        if (1 == readMethod) {
             try {
-                if (((line = bf.readLine()) != null)) {
-                    break;
+                // 防止中文乱码
+                BufferedReader bf = new BufferedReader(new InputStreamReader(fsDataInputStream));
+                String line = null;
+                while ((line = bf.readLine()) != null) {
+                    stringBuilder.append(new String(line.getBytes(), StandardCharsets.UTF_8));
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error(e.getMessage(), e);
+            }
+        } else if (2 == readMethod) {
+            try {
+                fsDataInputStream.read();
+
+            } catch (Exception e) {
+
             }
         }
-        ReadlinesResponse readlinesResponse = new ReadlinesResponse();
-        readlinesResponse.setStringList(new String(line.getBytes(), StandardCharsets.UTF_8));
+        readlinesResponse.setStringList(stringBuilder.toString());
         return readlinesResponse;
     }
 

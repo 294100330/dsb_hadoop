@@ -7,9 +7,13 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -52,7 +56,7 @@ public class DefaultIFileOutStreamServiceImpl implements IFileOutStreamService {
             }
         }
         if (streamId == null) {
-            streamId = this.put(connectionId, filePath);
+            streamId = this.put(connectionId, filePath, mode);
         }
         return streamId;
     }
@@ -94,16 +98,27 @@ public class DefaultIFileOutStreamServiceImpl implements IFileOutStreamService {
      * 保存
      *
      * @param connectionId
+     * @param filePath
+     * @param mode         可选 写入模式 1表示追加，2表示覆盖。
      * @return
      */
     @SuppressWarnings("all")
-    private String put(String connectionId, String filePath) {
+    private String put(String connectionId, String filePath, int mode) {
         String streamId = null;
         FileSystem fileSystem = connectionService.get(connectionId);
-        FSDataOutputStream fsDataOutputStream = null;
         try {
-            fsDataOutputStream = fileSystem.create(new Path(filePath));
+            FSDataOutputStream fsDataOutputStream = null;
             streamId = this.getId();
+            Path path = new Path(filePath);
+            //追加
+            if (1 == mode) {
+                fsDataOutputStream = fileSystem.append(path);
+//                InputStream in = new BufferedInputStream(new FileInputStream(filePath));
+//                IOUtils.copyBytes(in, fsDataOutputStream, 4096, true);
+            } else if (2 == mode) {
+                //覆盖
+                fsDataOutputStream = fileSystem.create(path);
+            }
             DefaultIFileOutStreamServiceImpl.IFileOutStreamData fileOutStreamData = IFileOutStreamData
                     .builder().connectionId(connectionId).filePath(filePath).fsDataOutputStream(fsDataOutputStream).build();
             DefaultIFileOutStreamServiceImpl.MAP.put(streamId, fileOutStreamData);

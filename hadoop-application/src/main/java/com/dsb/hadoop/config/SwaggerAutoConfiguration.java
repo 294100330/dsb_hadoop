@@ -1,8 +1,17 @@
 package com.dsb.hadoop.config;
 
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.SpringApplicationRunListener;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
@@ -11,15 +20,21 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 /**
  * Swagger2自动配置
  *
  * @author luowei
  * Creation time 2021/1/23 20:12
  */
+@Log4j2
 @EnableSwagger2
 @Configuration
-public class SwaggerAutoConfiguration {
+public class SwaggerAutoConfiguration implements ApplicationRunner, ApplicationContextAware {
+
+    private ApplicationContext applicationContext;
 
     @Bean
     public Docket createRestApi() {
@@ -49,4 +64,32 @@ public class SwaggerAutoConfiguration {
                 .build();
     }
 
+
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        Environment env = applicationContext.getEnvironment();
+        String host = null;
+        try {
+            host = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        String port = env.getProperty("server.port");
+        log.info("\n----------------------------------------------------------\n\t" +
+                        "Application '{}' is running! Access URLs:\n\t" +
+                        "Local: \t\thttp://localhost:{}\n\t" +
+                        "External: \thttp://{}:{}\n\t" +
+                        "Doc: \thttp://{}:{}/doc.html\n\t" +
+                        "----------------------------------------------------------",
+                env.getProperty("spring.application.name"),
+                env.getProperty("server.port"),
+                host, port,
+                host, port);
+    }
 }

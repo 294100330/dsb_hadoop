@@ -39,25 +39,7 @@ import java.net.UnknownHostException;
 public class HadoopApplication {
 
     public static void main(String[] args) {
-        ConfigurableApplicationContext application = SpringApplication.run(HadoopApplication.class, args);
-        Environment env = application.getEnvironment();
-        String host = null;
-        try {
-            host = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-        String port = env.getProperty("server.port");
-        log.info("\n----------------------------------------------------------\n\t" +
-                        "Application '{}' is running! Access URLs:\n\t" +
-                        "Local: \t\thttp://localhost:{}\n\t" +
-                        "External: \thttp://{}:{}\n\t" +
-                        "Doc: \thttp://{}:{}/doc.html\n\t" +
-                        "----------------------------------------------------------",
-                env.getProperty("spring.application.name"),
-                env.getProperty("server.port"),
-                host, port,
-                host, port);
+        SpringApplication.run(HadoopApplication.class, args);
     }
 
 }

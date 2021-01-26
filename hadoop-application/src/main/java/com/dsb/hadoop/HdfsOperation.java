@@ -33,19 +33,9 @@ public class HdfsOperation {
         } catch (Exception e) {
             log.log(Level.SEVERE, e.getMessage(), e);
         }
-        hdfsOperation.delete("hadoop.txt");
-//        hdfsOperation.copyLocalFileToHDFS("D:\\hadoop.txt", "hadoop.txt");
-//        System.out.println(hdfsOperation.checkFileExist("hadoop.txt"));
-//        FileStatus fileStatus = hdfsOperation.hdfs.getFileStatus(new Path("hadoop.txt"));
-//        System.out.println(fileStatus);
-//        hdfsOperation.downloadFileFromHdfs("hadoop.txt", "E:");
-//        hdfsOperation.readByLine("doushabao/upload.text");
-
-//        hdfsOperation.readByLine("doushabao/hadoop.txt");
-//        hdfsOperation.mkdir("doushabao");
-//        hdfsOperation.copyLocalFileToHDFS("D:\\hadoop.txt", "doushabao/hadoop.txt");
-//        hdfsOperation.writerString("doushabao/hadoop.txt", "123456789");
-//        hdfsOperation.downloadFileFromHdfs("doushabao/hadoop.txt","F:\\doushabao\\hadoop.txt");
+//        hdfsOperation.writerString("豆沙包","doushabao.txt");
+        hdfsOperation.readByLine("doushabao.txt");
+//        hdfsOperation.writerString();
     }
 
     /**
