@@ -1,6 +1,6 @@
 package paas.storage.component;
 
-import cn.hutool.core.util.IdUtil;
+import cn.hutool.crypto.SecureUtil;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
@@ -9,11 +9,9 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import paas.storage.constants.Constants;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,29 +32,39 @@ public class DefaultIFileOutStreamServiceImpl implements IFileOutStreamService {
     /**
      * 前缀
      */
-    private static final String OUT_STREAM_PREFIX = "outStream:";
+    private static final String OUT_STREAM_PREFIX = "outStream";
 
     @Autowired
     private ConnectionService connectionService;
 
     /**
-     * 创建
+     * 创建流
      *
-     * @param connectionId
-     * @param filePath
-     * @param mode
+     * @param connectionId 必填 文件系统连接标识
+     * @param filePath     必填文件路径 文件的绝对路径。
+     * @param mode         可选 写入模式 1表示追加，2表示覆盖。
      * @return
      */
     @Override
     public String create(String connectionId, String filePath, int mode) {
-        String streamId = null;
-        for (Map.Entry<String, DefaultIFileOutStreamServiceImpl.IFileOutStreamData> entity : DefaultIFileOutStreamServiceImpl.MAP.entrySet()) {
-            if (entity.getValue().getConnectionId().equals(connectionId)) {
-                streamId = entity.getKey();
+        //生成id
+        String streamId = this.getId(connectionId, filePath, mode);
+        FileSystem fileSystem = connectionService.get(connectionId);
+        try {
+            FSDataOutputStream fsDataOutputStream = null;
+            Path path = new Path(filePath);
+            //追加
+            if (1 == mode) {
+                fsDataOutputStream = fileSystem.append(path);
+            } else if (2 == mode) {
+                //覆盖
+                fsDataOutputStream = fileSystem.create(path);
             }
-        }
-        if (streamId == null) {
-            streamId = this.put(connectionId, filePath, mode);
+            DefaultIFileOutStreamServiceImpl.IFileOutStreamData fileOutStreamData = IFileOutStreamData
+                    .builder().connectionId(connectionId).filePath(filePath).fsDataOutputStream(fsDataOutputStream).build();
+            DefaultIFileOutStreamServiceImpl.MAP.put(streamId, fileOutStreamData);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
         }
         return streamId;
     }
@@ -80,9 +88,12 @@ public class DefaultIFileOutStreamServiceImpl implements IFileOutStreamService {
      */
     @Override
     public void delete(String streamId) {
-        if (streamId.contains(OUT_STREAM_PREFIX)) {
-            DefaultIFileOutStreamServiceImpl.MAP.remove(streamId);
+        DefaultIFileOutStreamServiceImpl.IFileOutStreamData iFileOutStreamData =  DefaultIFileOutStreamServiceImpl.MAP.get(streamId);
+        if(iFileOutStreamData !=null){
+            IOUtils.closeStream(iFileOutStreamData.getFsDataOutputStream());
         }
+        DefaultIFileOutStreamServiceImpl.MAP.remove(streamId);
+
     }
 
     /**
@@ -90,53 +101,37 @@ public class DefaultIFileOutStreamServiceImpl implements IFileOutStreamService {
      *
      * @return
      */
-    private String getId() {
-        return OUT_STREAM_PREFIX + IdUtil.simpleUUID();
-    }
-
-    /**
-     * 保存
-     *
-     * @param connectionId
-     * @param filePath
-     * @param mode         可选 写入模式 1表示追加，2表示覆盖。
-     * @return
-     */
-    @SuppressWarnings("all")
-    private String put(String connectionId, String filePath, int mode) {
-        String streamId = null;
-        FileSystem fileSystem = connectionService.get(connectionId);
-        try {
-            FSDataOutputStream fsDataOutputStream = null;
-            streamId = this.getId();
-            Path path = new Path(filePath);
-            //追加
-            if (1 == mode) {
-                fsDataOutputStream = fileSystem.append(path);
-//                InputStream in = new BufferedInputStream(new FileInputStream(filePath));
-//                IOUtils.copyBytes(in, fsDataOutputStream, 4096, true);
-            } else if (2 == mode) {
-                //覆盖
-                fsDataOutputStream = fileSystem.create(path);
-            }
-            DefaultIFileOutStreamServiceImpl.IFileOutStreamData fileOutStreamData = IFileOutStreamData
-                    .builder().connectionId(connectionId).filePath(filePath).fsDataOutputStream(fsDataOutputStream).build();
-            DefaultIFileOutStreamServiceImpl.MAP.put(streamId, fileOutStreamData);
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-        }
-
-        return streamId;
+    private String getId(String connectionId, String filePath, int mode) {
+        StringBuilder stringBuilder = new StringBuilder(OUT_STREAM_PREFIX)
+                .append(Constants.SEPARATOR)
+                .append(connectionId)
+                .append(Constants.SEPARATOR)
+                .append(filePath)
+                .append(Constants.SEPARATOR)
+                .append(mode);
+        String md5 = SecureUtil.md5(stringBuilder.toString());
+        StringBuilder stringBuilder1 = new StringBuilder(OUT_STREAM_PREFIX).append(Constants.SEPARATOR).append(md5);
+        return stringBuilder1.toString();
     }
 
 
     @Data
     @Builder
     private static class IFileOutStreamData {
+
+        /**
+         *
+         */
         private String connectionId;
 
+        /**
+         *
+         */
         private String filePath;
 
+        /**
+         *
+         */
         private FSDataOutputStream fsDataOutputStream;
 
     }

@@ -1,13 +1,16 @@
 package paas.storage.component;
 
-import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.HashUtil;
+import cn.hutool.crypto.SecureUtil;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import paas.storage.constants.Constants;
 
 import java.io.IOException;
 import java.util.Map;
@@ -28,7 +31,7 @@ public class DefaultIFileInputStreamServiceImpl implements IFileInputStreamServi
     /**
      * 前缀
      */
-    private static final String INPUT_STREAM_PREFIX = "inputStream:";
+    private static final String INPUT_STREAM_PREFIX = "inputStream";
 
 
     @Autowired
@@ -43,15 +46,17 @@ public class DefaultIFileInputStreamServiceImpl implements IFileInputStreamServi
      */
     @Override
     public String create(String connectionId, String filePath) {
-        String streamId = null;
-        for (Map.Entry<String, IFileInputStreamData> entity : DefaultIFileInputStreamServiceImpl.MAP.entrySet()) {
-            if (entity.getValue().getConnectionId().equals(connectionId)) {
-                streamId = entity.getKey();
-            }
+         String streamId = null;
+        try {
+            FileSystem fileSystem = connectionService.get(connectionId);
+            FSDataInputStream fsDataInputStream = fileSystem.open(new Path(filePath));
+            streamId = this.getId(connectionId, filePath);
+            IFileInputStreamData fileSystemData = IFileInputStreamData.builder().connectionId(connectionId).filePath(filePath).fsDataInputStream(fsDataInputStream).build();
+            DefaultIFileInputStreamServiceImpl.MAP.put(streamId, fileSystemData);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
         }
-        if (streamId == null) {
-            streamId = this.put(connectionId, filePath);
-        }
+
         return streamId;
     }
 
@@ -74,6 +79,10 @@ public class DefaultIFileInputStreamServiceImpl implements IFileInputStreamServi
      */
     @Override
     public void delete(String streamId) {
+        DefaultIFileInputStreamServiceImpl.IFileInputStreamData iFileInputStreamData = DefaultIFileInputStreamServiceImpl.MAP.get(streamId);
+        if (iFileInputStreamData != null) {
+            IOUtils.closeStream(iFileInputStreamData.getFsDataInputStream());
+        }
         DefaultIFileInputStreamServiceImpl.MAP.remove(streamId);
     }
 
@@ -83,30 +92,17 @@ public class DefaultIFileInputStreamServiceImpl implements IFileInputStreamServi
      *
      * @return
      */
-    private String getId() {
-        return INPUT_STREAM_PREFIX + IdUtil.simpleUUID();
+    private String getId(String connectionId, String filePath) {
+        StringBuilder stringBuilder = new StringBuilder(INPUT_STREAM_PREFIX)
+                .append(Constants.SEPARATOR)
+                .append(connectionId)
+                .append(Constants.SEPARATOR)
+                .append(filePath);
+        String md5 = SecureUtil.md5(stringBuilder.toString());
+        StringBuilder stringBuilder1 = new StringBuilder(INPUT_STREAM_PREFIX).append(Constants.SEPARATOR).append(md5);
+        return stringBuilder1.toString();
     }
 
-    /**
-     * 保存
-     *
-     * @param connectionId
-     * @return
-     */
-    private String put(String connectionId, String filePath) {
-        String streamId = null;
-        FileSystem fileSystem = connectionService.get(connectionId);
-        try {
-            FSDataInputStream fsDataInputStream = fileSystem.open(new Path(filePath));
-            streamId = this.getId();
-            IFileInputStreamData fileSystemData = IFileInputStreamData.builder().connectionId(connectionId).filePath(filePath).fsDataInputStream(fsDataInputStream).build();
-            DefaultIFileInputStreamServiceImpl.MAP.put(streamId, fileSystemData);
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-        }
-
-        return streamId;
-    }
 
     @Data
     @Builder

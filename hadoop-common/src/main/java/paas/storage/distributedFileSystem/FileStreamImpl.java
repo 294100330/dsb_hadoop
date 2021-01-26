@@ -141,8 +141,8 @@ public class FileStreamImpl implements IFileStream {
      */
     @Override
     public Response writeline(String streamId, String string) {
-        FSDataOutputStream fsDataOutputStream = iFileOutStreamService.get(streamId);
 
+        FSDataOutputStream fsDataOutputStream = iFileOutStreamService.get(streamId);
         // 以UTF-8格式写入文件，不乱码
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fsDataOutputStream, StandardCharsets.UTF_8));
         try {

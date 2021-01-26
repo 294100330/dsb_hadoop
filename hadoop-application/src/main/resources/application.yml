@@ -6,4 +6,6 @@ hadoop:
   user: root
   config:
     dfs:
+      support:
+        append: true
       replication: 1
