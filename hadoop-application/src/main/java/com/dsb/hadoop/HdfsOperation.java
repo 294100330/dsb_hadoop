@@ -30,12 +30,9 @@ public class HdfsOperation {
         HdfsOperation hdfsOperation = new HdfsOperation();
         try {
             hdfsOperation.hdfs = HdfsOperation.getFileSystem();
-            hdfsOperation.writerString("豆沙包","doushabao.txt");
-
         } catch (Exception e) {
             log.log(Level.SEVERE, e.getMessage(), e);
         }
-//        hdfsOperation.readByLine("doushabao.txt");
 //        hdfsOperation.writerString();
     }
 

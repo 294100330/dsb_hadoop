@@ -27,9 +27,6 @@ public class IFileController {
     @Autowired
     private IFile iFile;
 
-    @Autowired
-    private ConnectionService connectionService;
-
     /**
      * 创建目录
      *
@@ -83,7 +80,7 @@ public class IFileController {
      * @return
      */
     @PostMapping("move")
-    @ApiOperation("重命名文件")
+    @ApiOperation("移动文件")
     public Response move(String connectionId, String srcPath, String dstPath, int operator, int overwrite) {
         return iFile.move(connectionId, srcPath, dstPath, operator, overwrite);
     }
@@ -127,7 +124,6 @@ public class IFileController {
     @ApiOperation("获取文件属性")
     public GetFileInfoResponse getFileInfo(String connectionId, String fileName) {
         return iFile.getFileInfo(connectionId, fileName);
-
     }
 
     /**

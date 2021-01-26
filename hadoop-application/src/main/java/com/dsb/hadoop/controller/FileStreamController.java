@@ -1,5 +1,6 @@
 package com.dsb.hadoop.controller;
 
+import com.dsb.hadoop.dto.from.FileCreateFrom;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.SneakyThrows;
@@ -32,16 +33,13 @@ public class FileStreamController {
     /**
      * 创建流
      *
-     * @param connectionId 必填 文件系统连接标识
-     * @param filePath     必填文件路径 文件的绝对路径。
-     * @param streamType   必填 流类型 1：输入流；2:输出流。
-     * @param mode         可选 写入模式 1表示追加，2表示覆盖。
+     * @param fileCreateFrom 必填 文件系统连接标识
      * @return
      */
     @PostMapping("create")
     @ApiOperation("创建流")
-    public CreateResponse create(String connectionId, String filePath, int streamType, int mode) {
-        return iFileStream.create(connectionId, filePath, streamType, mode);
+    public CreateResponse create(FileCreateFrom fileCreateFrom) {
+        return iFileStream.create(fileCreateFrom.getConnectionId(), fileCreateFrom.getFilePath(), fileCreateFrom.getStreamType().getCode(), fileCreateFrom.getMode().getCode());
     }
 
     /**

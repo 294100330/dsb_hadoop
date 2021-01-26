@@ -3,15 +3,15 @@ package paas.storage.distributedFileSystem;
 import cn.hutool.json.JSONUtil;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
+import org.apache.hadoop.fs.FileContext;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.permission.FsPermission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import paas.storage.component.ConnectionService;
-import paas.storage.distributedFileSystem.file.response.*;
 import paas.storage.connection.Response;
+import paas.storage.distributedFileSystem.file.response.*;
 
 /**
  * 文件访问 实现层
@@ -96,11 +96,23 @@ public class FileImpl implements IFile {
      * @return
      */
     @Override
-    @SneakyThrows
     public Response move(String connectionId, String srcPath, String dstPath, int operator, int overwrite) {
-        FileSystem fileSystem = connectionService.get(connectionId);
-        fileSystem.moveToLocalFile(new Path(srcPath), new Path(dstPath));
-        return new Response();
+        Response response = new Response();
+        try {
+            FileSystem fileSystem = connectionService.get(connectionId);
+            Path srcPath1 = new Path(srcPath);
+            Path dstPath1 = new Path(dstPath);
+            //移动
+            if (1 == operator) {
+                boolean result = fileSystem.rename(srcPath1, dstPath1);
+            } else if (2 == operator) {
+                //复制
+                FileContext.getFileContext(fileSystem.getUri(), fileSystem.getConf()).util().copy(srcPath1, dstPath1, false, 2 == overwrite);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return response;
     }
 
     /**
@@ -118,7 +130,7 @@ public class FileImpl implements IFile {
         FileSystem fileSystem = connectionService.get(connectionId);
         FileStatus[] fileStatuses = fileSystem.listStatus(new Path(filePath));
         GetFileListResponse getFileListResponse = new GetFileListResponse();
-        getFileListResponse.setFileList(JSONUtil.toJsonStr(getFileListResponse));
+        getFileListResponse.setFileList(JSONUtil.toJsonStr(fileStatuses));
         return getFileListResponse;
     }
 
@@ -150,6 +162,7 @@ public class FileImpl implements IFile {
     @SneakyThrows
     public GetFileInfoResponse getFileInfo(String connectionId, String fileName) {
         FileSystem fileSystem = connectionService.get(connectionId);
+        fileSystem.getStatus();
         FileStatus fileStatus = fileSystem.getFileStatus(new Path(fileName));
         GetFileInfoResponse getFileInfoResponse = new GetFileInfoResponse();
         String jsonText = JSONUtil.toJsonStr(fileStatus);
