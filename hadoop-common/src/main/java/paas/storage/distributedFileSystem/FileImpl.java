@@ -1,17 +1,21 @@
 package paas.storage.distributedFileSystem;
 
+import cn.hutool.core.util.ReUtil;
 import cn.hutool.json.JSONUtil;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
-import org.apache.hadoop.fs.FileContext;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import paas.storage.component.ConnectionService;
 import paas.storage.connection.Response;
 import paas.storage.distributedFileSystem.file.response.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 文件访问 实现层
@@ -127,10 +131,29 @@ public class FileImpl implements IFile {
     @Override
     @SneakyThrows
     public GetFileListResponse getFileList(String connectionId, String filePath, String filter, int recursive) {
-        FileSystem fileSystem = connectionService.get(connectionId);
-        FileStatus[] fileStatuses = fileSystem.listStatus(new Path(filePath));
         GetFileListResponse getFileListResponse = new GetFileListResponse();
-        getFileListResponse.setFileList(JSONUtil.toJsonStr(fileStatuses));
+        try {
+            FileSystem fileSystem = connectionService.get(connectionId);
+            RemoteIterator<LocatedFileStatus> remoteIterator = fileSystem.listFiles(new Path(filePath), 1 == recursive);
+            List<LocatedFileStatus> locatedFileStatuses = new ArrayList<>();
+            while (remoteIterator.hasNext()) {
+                locatedFileStatuses.add(remoteIterator.next());
+            }
+            //处理内容
+            List<Map<String, Object>> list = locatedFileStatuses.stream()
+                    //过滤
+                    .filter(locatedFileStatus -> ReUtil.isMatch(filter, locatedFileStatus.getPath().getName()))
+                    //内容处理
+                    .map(locatedFileStatus -> {
+                        Map<String, Object> map = new HashMap<>(2);
+                        map.put("filepath", locatedFileStatus.getPath().getName());
+                        map.put("isDir", locatedFileStatus.isDirectory() ? 1 : 0);
+                        return map;
+                    }).collect(Collectors.toList());
+            getFileListResponse.setFileList(JSONUtil.toJsonStr(list));
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
         return getFileListResponse;
     }
 
@@ -186,6 +209,4 @@ public class FileImpl implements IFile {
 //        fileSystem.setPermission(new Path(fullPath),FsPermission);
         return null;
     }
-
-
 }

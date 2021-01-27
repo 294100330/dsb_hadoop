@@ -29,6 +29,10 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-hdfs</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.qingcloud</groupId>
+            <artifactId>qingcloud-sdk-java</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
