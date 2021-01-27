@@ -6,18 +6,21 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 import paas.storage.component.IFileInputStreamService;
 import paas.storage.component.IFileOutStreamService;
 import paas.storage.connection.Response;
 import paas.storage.distributedFileSystem.fileStream.response.*;
+import paas.storage.utils.AssertUtils;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
  * 文件流管理 实现层
  *
- * @author luowei
+ * @author 豆沙包
  * Creation time 2021/1/23 19:10
  */
 @Log4j2
@@ -43,6 +46,10 @@ public class FileStreamImpl implements IFileStream {
     public CreateResponse create(String connectionId, String filePath, int streamType, int mode) {
         CreateResponse createResponse = new CreateResponse();
         try {
+            AssertUtils.isTrue(!StringUtils.isEmpty(connectionId), "connectionId:文件系统连接标识不能为空");
+            AssertUtils.isTrue(!StringUtils.isEmpty(filePath), "fileName:文件名不能为空");
+            AssertUtils.isTrue(1 == streamType || 2 == streamType, "streamType:流类型限定在1或2");
+
             String streamId = null;
             if (1 == streamType) {
                 streamId = iFileInputStreamService.create(connectionId, filePath);
@@ -75,6 +82,9 @@ public class FileStreamImpl implements IFileStream {
     public ReadResponse read(String streamId, byte[] byteArray, int offSet, int length) {
         ReadResponse readResponse = new ReadResponse();
         try {
+            AssertUtils.isTrue(!StringUtils.isEmpty(streamId), "streamId:流对象唯一标识不能为空");
+            AssertUtils.isTrue(byteArray != null, "byteArray:字节数组不能为空");
+
             FSDataInputStream fsDataInputStream = iFileInputStreamService.get(streamId);
             IOUtils.wrappedReadForCompressedData(fsDataInputStream, byteArray, offSet, length);
             readResponse.setLength(byteArray.length);
@@ -100,6 +110,12 @@ public class FileStreamImpl implements IFileStream {
     public ReadlinesResponse readlines(String streamId, String encode, int readMethod) {
         ReadlinesResponse readlinesResponse = new ReadlinesResponse();
         try {
+            AssertUtils.isTrue(!StringUtils.isEmpty(streamId), "streamId:流对象唯一标识不能为空");
+            AssertUtils.isTrue(1 == readMethod || 2 == readMethod, "readMethod:读取方法限定在1或2");
+
+            encode = !StringUtils.isEmpty(encode) ? encode : Charset.defaultCharset().name();
+
+
             FSDataInputStream fsDataInputStream = iFileInputStreamService.get(streamId);
             //1表示逐行读取
             if (1 == readMethod) {
@@ -142,6 +158,9 @@ public class FileStreamImpl implements IFileStream {
     public WriteResponse write(String streamId, byte[] byteArray, int offSet, int length) {
         WriteResponse writeResponse = new WriteResponse();
         try {
+            AssertUtils.isTrue(!StringUtils.isEmpty(streamId), "streamId:流对象唯一标识不能为空");
+            AssertUtils.isTrue(byteArray !=null,"byteArray:字节数组不能为空");
+
             FSDataOutputStream fsDataOutputStream = iFileOutStreamService.get(streamId);
             fsDataOutputStream.write(byteArray, offSet, offSet);
             writeResponse.setTaskStatus(1);
@@ -167,6 +186,10 @@ public class FileStreamImpl implements IFileStream {
     public Response writeline(String streamId, String string) {
         Response response = new Response();
         try {
+            AssertUtils.isTrue(!StringUtils.isEmpty(streamId), "streamId:流对象唯一标识不能为空");
+            AssertUtils.isTrue(!StringUtils.isEmpty(string), "string:字符串不能为空");
+
+
             FSDataOutputStream fsDataOutputStream = iFileOutStreamService.get(streamId);
             // 以UTF-8格式写入文件，不乱码
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fsDataOutputStream, StandardCharsets.UTF_8));
@@ -192,6 +215,9 @@ public class FileStreamImpl implements IFileStream {
     public CloseResponse close(String streamId) {
         CloseResponse closeResponse = new CloseResponse();
         try {
+            AssertUtils.isTrue(!StringUtils.isEmpty(streamId), "streamId:流对象唯一标识不能为空");
+
+
             iFileOutStreamService.delete(streamId);
             iFileInputStreamService.delete(streamId);
             closeResponse.setStreamId(streamId);

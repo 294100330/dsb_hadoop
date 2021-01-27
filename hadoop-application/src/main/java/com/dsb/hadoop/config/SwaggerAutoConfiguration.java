@@ -26,7 +26,7 @@ import java.net.UnknownHostException;
 /**
  * Swagger2自动配置
  *
- * @author luowei
+ * @author 豆沙包
  * Creation time 2021/1/23 20:12
  */
 @Log4j2

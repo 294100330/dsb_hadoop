@@ -7,9 +7,11 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.hadoop.fs.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 import paas.storage.component.ConnectionService;
 import paas.storage.connection.Response;
 import paas.storage.distributedFileSystem.file.response.*;
+import paas.storage.utils.AssertUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +22,7 @@ import java.util.stream.Collectors;
 /**
  * 文件访问 实现层
  *
- * @author luowei
+ * @author 豆沙包
  * Creation time 2021/1/23 18:58
  */
 @Log4j2
@@ -41,6 +43,9 @@ public class FileImpl implements IFile {
     public CreateResponse create(String connectionId, String filePath) {
         CreateResponse createResponse = new CreateResponse();
         try {
+            AssertUtils.isTrue(!StringUtils.isEmpty(connectionId), "connectionId:connectionId不能为空");
+            AssertUtils.isTrue(!StringUtils.isEmpty(filePath), "filePath:filePath不能为空");
+
             FileSystem fileSystem = connectionService.get(connectionId);
             fileSystem.mkdirs(new Path(filePath));
             createResponse.setTaskStatus(1);
@@ -68,6 +73,11 @@ public class FileImpl implements IFile {
     public Response delete(String connectionId, String filePath, int objectType, int recursive) {
         Response response = new Response();
         try {
+            AssertUtils.isTrue(!StringUtils.isEmpty(connectionId), "connectionId:文件系统连接标识不能为空");
+            AssertUtils.isTrue(!StringUtils.isEmpty(filePath), "filePath:文件路径不能为空");
+            AssertUtils.isTrue(1 == objectType || 2 == objectType, "objectType:操作对象类型限定在1或2");
+            AssertUtils.isTrue(1 == recursive || 2 == recursive, "recursive:是否递归限定在1或2");
+
             FileSystem fileSystem = connectionService.get(connectionId);
             Path path = new Path(filePath);
             fileSystem.delete(path, 1 == objectType);
@@ -85,16 +95,19 @@ public class FileImpl implements IFile {
     /**
      * 重命名文件
      *
-     * @param connectionId
-     * @param srcPath
-     * @param dstPath
+     * @param connectionId 必填 文件系统连接标识
+     * @param srcPath      必填 源文件 填写完整的文件路径或目录。
+     * @param dstPath      必填 目标文件 此参数填写新文件名。
      * @return
      */
     @Override
-    @SneakyThrows
     public RenameResponse rename(String connectionId, String srcPath, String dstPath) {
         RenameResponse response = new RenameResponse();
         try {
+            AssertUtils.isTrue(!StringUtils.isEmpty(connectionId), "connectionId:文件系统连接标识不能为空");
+            AssertUtils.isTrue(!StringUtils.isEmpty(srcPath), "srcPath:源文件不能为空");
+            AssertUtils.isTrue(!StringUtils.isEmpty(dstPath), "dstPath:目标文件不能为空");
+
             FileSystem fileSystem = connectionService.get(connectionId);
             fileSystem.rename(new Path(srcPath), new Path(dstPath));
             response.setDstFile(dstPath);
@@ -123,6 +136,12 @@ public class FileImpl implements IFile {
     public Response move(String connectionId, String srcPath, String dstPath, int operator, int overwrite) {
         Response response = new Response();
         try {
+            AssertUtils.isTrue(!StringUtils.isEmpty(connectionId), "connectionId:文件系统连接标识不能为空");
+            AssertUtils.isTrue(!StringUtils.isEmpty(srcPath), "srcPath:源文件路径不能为空");
+            AssertUtils.isTrue(!StringUtils.isEmpty(dstPath), "dstPath:目的文件路径不能为空");
+            AssertUtils.isTrue(1 == operator || 2 == operator, "operator:操作类型限定在1或2");
+            AssertUtils.isTrue(1 == overwrite || 2 == overwrite, "overwrite:是否覆盖限定在1或2");
+
             FileSystem fileSystem = connectionService.get(connectionId);
             Path srcPath1 = new Path(srcPath);
             Path dstPath1 = new Path(dstPath);
@@ -150,14 +169,17 @@ public class FileImpl implements IFile {
      * @param connectionId 必填 文件系统连接标识
      * @param filePath     必填 文件路径  填写完整的文件路径。
      * @param filter       可选 过滤器  正则表达式。
-     * @param recursive    是否 递归  1表示递归，0表示不递归。
+     * @param recursive    必填 递归  1表示递归，0表示不递归。
      * @return
      */
     @Override
-    @SneakyThrows
     public GetFileListResponse getFileList(String connectionId, String filePath, String filter, int recursive) {
         GetFileListResponse getFileListResponse = new GetFileListResponse();
         try {
+            AssertUtils.isTrue(!StringUtils.isEmpty(connectionId), "connectionId:文件系统连接标识不能为空");
+            AssertUtils.isTrue(!StringUtils.isEmpty(filePath), "filePath:文件路径不能为空");
+            AssertUtils.isTrue(1 == recursive || 2 == recursive, "recursive:递归限定在1或2");
+
             FileSystem fileSystem = connectionService.get(connectionId);
             //迭代查询
             RemoteIterator<LocatedFileStatus> remoteIterator = fileSystem.listFiles(new Path(filePath), 1 == recursive);
@@ -168,7 +190,7 @@ public class FileImpl implements IFile {
             //处理内容
             List<Map<String, Object>> list = locatedFileStatuses.stream()
                     //过滤
-                    .filter(locatedFileStatus -> ReUtil.isMatch(filter, locatedFileStatus.getPath().getName()))
+                    .filter(locatedFileStatus -> ReUtil.isMatch(locatedFileStatus.getPath().getName(), filter))
                     //内容处理
                     .map(locatedFileStatus -> {
                         Map<String, Object> map = new HashMap<>(2);
@@ -200,6 +222,9 @@ public class FileImpl implements IFile {
     public FileExistResponse fileExist(String connectionId, String filePath) {
         FileExistResponse fileExistResponse = new FileExistResponse();
         try {
+            AssertUtils.isTrue(!StringUtils.isEmpty(connectionId), "connectionId:文件系统连接标识不能为空");
+            AssertUtils.isTrue(!StringUtils.isEmpty(filePath), "filePath:文件路径不能为空");
+
             FileSystem fileSystem = connectionService.get(connectionId);
             boolean exists = fileSystem.exists(new Path(filePath));
             fileExistResponse.setTaskStatus(1);
@@ -226,6 +251,9 @@ public class FileImpl implements IFile {
     public GetFileInfoResponse getFileInfo(String connectionId, String fileName) {
         GetFileInfoResponse getFileInfoResponse = new GetFileInfoResponse();
         try {
+            AssertUtils.isTrue(!StringUtils.isEmpty(connectionId), "connectionId:文件系统连接标识不能为空");
+            AssertUtils.isTrue(!StringUtils.isEmpty(fileName), "fileName:文件名不能为空");
+
             FileSystem fileSystem = connectionService.get(connectionId);
             fileSystem.getStatus();
             FileStatus fileStatus = fileSystem.getFileStatus(new Path(fileName));

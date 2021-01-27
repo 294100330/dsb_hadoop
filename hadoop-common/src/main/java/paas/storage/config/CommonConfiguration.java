@@ -4,7 +4,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * @author luowei
+ * @author 豆沙包
  * Creation time 2021/1/23 20:48
  */
 @Configuration

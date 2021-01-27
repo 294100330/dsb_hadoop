@@ -6,7 +6,7 @@ import paas.storage.connection.Response;
 /**
  * 文件访问 服务层
  *
- * @author luowei
+ * @author 豆沙包
  * Creation time 2021/1/23 18:58
  */
 public interface IFile {

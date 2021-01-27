@@ -16,7 +16,7 @@ import paas.storage.connection.Response;
 /**
  * 文件访问 接口层
  *
- * @author luowei
+ * @author 豆沙包
  * Creation time 2021/1/24 17:44
  */
 @Api(tags = "文件访问 API")

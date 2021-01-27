@@ -5,7 +5,7 @@ import org.apache.hadoop.fs.FileSystem;
 /**
  * 文件系统连接创建 服务层
  *
- * @author luowei
+ * @author 豆沙包
  * Creation time 2021/1/24 16:37
  */
 public interface ConnectionService {

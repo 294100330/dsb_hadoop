@@ -5,7 +5,7 @@ import paas.storage.distributedFileSystem.storage.response.StorageResponse;
 /**
  * 存储空间管理 服务层
  *
- * @author luowei
+ * @author 豆沙包
  * Creation time 2021/1/23 19:22
  */
 public interface IStorage {

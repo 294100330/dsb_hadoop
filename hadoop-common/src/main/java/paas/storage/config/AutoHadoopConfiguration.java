@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  * hadoop
  *
- * @author luowei
+ * @author 豆沙包
  * Creation time 2021/1/23 20:36
  */
 @Data

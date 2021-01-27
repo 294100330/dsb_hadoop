@@ -3,12 +3,11 @@ package paas.storage.connection;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import paas.storage.enums.ResponseEnum;
 
 /**
  * PAAS 平台返回结果基类
  *
- * @author luowei
+ * @author 豆沙包
  * Creation time 2021/1/23 18:44
  */
 @Data

@@ -1,5 +1,7 @@
 package com.dsb.hadoop;
 
+import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.IdUtil;
 import lombok.SneakyThrows;
 import lombok.extern.java.Log;
 import org.apache.hadoop.conf.Configuration;
@@ -30,6 +32,15 @@ public class HdfsOperation {
         HdfsOperation hdfsOperation = new HdfsOperation();
         try {
             hdfsOperation.hdfs = HdfsOperation.getFileSystem();
+            hdfsOperation.mkdir("cehsidaxiao");
+            int num = 0;
+            do {
+                num +=1;
+                ThreadUtil.execAsync(()->{
+                hdfsOperation.copyLocalFileToHDFS("D:\\office_tool_plus.rar", "cehsidaxiao/"+IdUtil.simpleUUID() + ".rar");
+                });
+            }
+            while (num <= 1000) ;
         } catch (Exception e) {
             log.log(Level.SEVERE, e.getMessage(), e);
         }

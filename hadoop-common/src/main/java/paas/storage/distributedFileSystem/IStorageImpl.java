@@ -6,13 +6,15 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 import paas.storage.component.ConnectionService;
 import paas.storage.distributedFileSystem.storage.response.StorageResponse;
+import paas.storage.utils.AssertUtils;
 
 /**
  * 存储空间管理 实现层
  *
- * @author luowei
+ * @author 豆沙包
  * Creation time 2021/1/23 19:22
  */
 @Log4j2
@@ -33,6 +35,9 @@ public class IStorageImpl implements IStorage {
     public StorageResponse getStorageInfo(String connectionId, String directory) {
         StorageResponse storageResponse = new StorageResponse();
         try {
+            AssertUtils.isTrue(!StringUtils.isEmpty(connectionId), "connectionId:文件系统连接标识不能为空");
+            AssertUtils.isTrue(!StringUtils.isEmpty(directory), "directory:目录不能为空");
+
             FileSystem fileSystem = connectionService.get(connectionId);
             ContentSummary contentSummary = fileSystem.getContentSummary(new Path(directory));
             storageResponse.setTaskStatus(1);

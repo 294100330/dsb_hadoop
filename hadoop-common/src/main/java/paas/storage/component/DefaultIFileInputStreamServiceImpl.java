@@ -1,6 +1,5 @@
 package paas.storage.component;
 
-import cn.hutool.core.util.HashUtil;
 import cn.hutool.crypto.SecureUtil;
 import lombok.Builder;
 import lombok.Data;
@@ -11,22 +10,23 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import paas.storage.constants.Constants;
+import paas.storage.exception.QCRuntimeException;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 默认输入文件流管理
  *
- * @author luowei
+ * @author 豆沙包
  * Creation time 2021/1/25 10:59
  */
 @Log4j2
 public class DefaultIFileInputStreamServiceImpl implements IFileInputStreamService {
 
     private static final Map<String, IFileInputStreamData> MAP = new ConcurrentHashMap<>();
-
 
     /**
      * 前缀
@@ -45,18 +45,12 @@ public class DefaultIFileInputStreamServiceImpl implements IFileInputStreamServi
      * @return
      */
     @Override
-    public String create(String connectionId, String filePath) {
-         String streamId = null;
-        try {
-            FileSystem fileSystem = connectionService.get(connectionId);
-            FSDataInputStream fsDataInputStream = fileSystem.open(new Path(filePath));
-            streamId = this.getId(connectionId, filePath);
-            IFileInputStreamData fileSystemData = IFileInputStreamData.builder().connectionId(connectionId).filePath(filePath).fsDataInputStream(fsDataInputStream).build();
-            DefaultIFileInputStreamServiceImpl.MAP.put(streamId, fileSystemData);
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-        }
-
+    public String create(String connectionId, String filePath) throws IOException {
+        String streamId = this.getId(connectionId, filePath);
+        FileSystem fileSystem = connectionService.get(connectionId);
+        FSDataInputStream fsDataInputStream = fileSystem.open(new Path(filePath));
+        IFileInputStreamData fileSystemData = IFileInputStreamData.builder().connectionId(connectionId).filePath(filePath).fsDataInputStream(fsDataInputStream).build();
+        DefaultIFileInputStreamServiceImpl.MAP.put(streamId, fileSystemData);
         return streamId;
     }
 
@@ -69,7 +63,8 @@ public class DefaultIFileInputStreamServiceImpl implements IFileInputStreamServi
     @Override
     public FSDataInputStream get(String streamId) {
         IFileInputStreamData iFileInputStreamData = DefaultIFileInputStreamServiceImpl.MAP.get(streamId);
-        return iFileInputStreamData.getFsDataInputStream();
+        return Optional.of(iFileInputStreamData).orElseThrow(() -> new QCRuntimeException("没有服务")).getFsDataInputStream();
+
     }
 
     /**

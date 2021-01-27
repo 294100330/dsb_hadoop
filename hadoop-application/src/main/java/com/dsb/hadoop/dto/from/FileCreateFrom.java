@@ -8,7 +8,7 @@ import lombok.Getter;
 /**
  * 流类型 1：输入流；2:输出流。
  *
- * @author luowei
+ * @author 豆沙包
  * Creation time 2021/1/26 15:23
  */
 @Data
