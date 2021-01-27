@@ -14,7 +14,6 @@ import paas.storage.exception.QCRuntimeException;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -80,7 +79,10 @@ public class DefaultIFileOutStreamServiceImpl implements IFileOutStreamService {
     @Override
     public FSDataOutputStream get(String streamId) {
         DefaultIFileOutStreamServiceImpl.IFileOutStreamData iFileOutStreamData = DefaultIFileOutStreamServiceImpl.MAP.get(streamId);
-        return Optional.of(iFileOutStreamData).orElseThrow(() -> new QCRuntimeException("没有服务")).getFsDataOutputStream();
+        if (iFileOutStreamData == null) {
+            throw new QCRuntimeException("没有服务");
+        }
+        return iFileOutStreamData.getFsDataOutputStream();
 
     }
 

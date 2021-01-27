@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import paas.storage.exception.QCRuntimeException;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -48,7 +47,10 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
     @Override
     public FileSystem get(String connectionId) {
         FileSystemData fileSystemData = DefaultConnectionServiceImpl.MAP.get(connectionId);
-        return Optional.of(fileSystemData).orElseThrow(() -> new QCRuntimeException("没有服务")).getFileSystem();
+        if (fileSystemData == null) {
+            throw new QCRuntimeException("没有服务");
+        }
+        return fileSystemData.getFileSystem();
     }
 
     /**

@@ -5,6 +5,7 @@ import cn.hutool.json.JSONUtil;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.permission.FsPermission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
@@ -12,6 +13,7 @@ import paas.storage.component.ConnectionService;
 import paas.storage.connection.Response;
 import paas.storage.distributedFileSystem.file.response.*;
 import paas.storage.utils.AssertUtils;
+import paas.storage.utils.AuthorityUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -255,9 +257,18 @@ public class FileImpl implements IFile {
             AssertUtils.isTrue(!StringUtils.isEmpty(fileName), "fileName:文件名不能为空");
 
             FileSystem fileSystem = connectionService.get(connectionId);
-            fileSystem.getStatus();
             FileStatus fileStatus = fileSystem.getFileStatus(new Path(fileName));
-            String jsonText = JSONUtil.toJsonStr(fileStatus);
+            StringBuilder stringBuilder = new StringBuilder(fileStatus.getPermission().getUserAction().SYMBOL)
+                    .append(fileStatus.getPermission().getGroupAction().SYMBOL)
+                    .append(fileStatus.getPermission().getOtherAction().SYMBOL);
+            Map<String,Object> map = new HashMap<>();
+            map.put("path",fileStatus.getPath().getName());
+            map.put("isdir",fileStatus.isDirectory());
+            map.put("accessTime",fileStatus.getAccessTime());
+            map.put("permission",stringBuilder.toString());
+            map.put("owner",fileStatus.getOwner());
+            map.put("group",fileStatus.getGroup());
+            String jsonText = JSONUtil.toJsonStr(map);
             getFileInfoResponse.setTaskStatus(1);
             getFileInfoResponse.setFileDetails(jsonText);
         } catch (Exception e) {
@@ -282,8 +293,24 @@ public class FileImpl implements IFile {
      */
     @Override
     public Response setAuthority(String fullPath, String userGroup, String user, String authority, int beInherit) {
-//        FileSystem fileSystem = connectionService.get(connectionId);
-//        fileSystem.setPermission(new Path(fullPath),FsPermission);
-        return null;
+        Response response = new Response();
+        try {
+            FileSystem fileSystem = connectionService.get("connectionId");
+            FsPermission fsPermission = AuthorityUtils.fileSystemAction(authority);
+            Path path = new Path(fullPath);
+            fileSystem.setPermission(path, fsPermission);
+            fileSystem.setOwner(path, user, userGroup);
+            response.setTaskStatus(1);
+
+        } catch (Exception e) {
+            response.setTaskStatus(0);
+            response.setErrorMsg(e.getMessage());
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+        }
+        return response;
     }
+
+
 }

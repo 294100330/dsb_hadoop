@@ -63,7 +63,10 @@ public class DefaultIFileInputStreamServiceImpl implements IFileInputStreamServi
     @Override
     public FSDataInputStream get(String streamId) {
         IFileInputStreamData iFileInputStreamData = DefaultIFileInputStreamServiceImpl.MAP.get(streamId);
-        return Optional.of(iFileInputStreamData).orElseThrow(() -> new QCRuntimeException("没有服务")).getFsDataInputStream();
+        if (iFileInputStreamData == null) {
+            throw new QCRuntimeException("没有服务");
+        }
+        return iFileInputStreamData.getFsDataInputStream();
 
     }
 
