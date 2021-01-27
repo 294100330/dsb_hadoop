@@ -9,6 +9,14 @@ import paas.storage.connection.Response;
  */
 @Data
 public class StorageResponse extends Response {
+
+    /**
+     * 存储容量 默认以GB返回。
+     */
     private long totalVolume;
+
+    /**
+     * 存储使用量  默认以GB返回。
+     */
     private long usedVolume;
 }

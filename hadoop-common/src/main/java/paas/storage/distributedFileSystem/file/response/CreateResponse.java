@@ -16,29 +16,4 @@ import paas.storage.connection.Response;
 public class CreateResponse extends Response {
 
     private String filePath;
-
-
-    public static class SuperClassBuilder extends Response.SuperClassBuilder<CreateResponse, SuperClassBuilder> {
-
-        public SuperClassBuilder(ResponseEnum responseEnum) {
-            super(responseEnum);
-        }
-
-        private String filePath;
-
-        public SuperClassBuilder filePath(String filePath) {
-            this.filePath = filePath;
-            return this;
-        }
-
-        @Override
-        protected SuperClassBuilder getThis() {
-            return this;
-        }
-
-        @Override
-        public CreateResponse build() {
-            return new CreateResponse(this.filePath);
-        }
-    }
 }

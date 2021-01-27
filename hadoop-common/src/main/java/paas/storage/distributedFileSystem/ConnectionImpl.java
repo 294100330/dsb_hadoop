@@ -1,12 +1,11 @@
 package paas.storage.distributedFileSystem;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import paas.storage.component.ConnectionService;
-import paas.storage.distributedFileSystem.connection.response.CreateResponse;
 import paas.storage.connection.Response;
-
-import javax.annotation.PostConstruct;
+import paas.storage.distributedFileSystem.connection.response.CreateResponse;
 
 /**
  * 文件系统连接 实现层
@@ -14,16 +13,12 @@ import javax.annotation.PostConstruct;
  * @author luowei
  * Creation time 2021/1/23 18:51
  */
+@Log4j2
 @Configuration
 public class ConnectionImpl implements IConnection {
 
     @Autowired
     private ConnectionService connectionService;
-
-    @PostConstruct
-    public void setUp() {
-        this.create("1", "1", "");
-    }
 
     /**
      * 创建文件系统连接
@@ -35,9 +30,18 @@ public class ConnectionImpl implements IConnection {
      */
     @Override
     public CreateResponse create(String serviceId, String accessToken, String expendParams) {
-        String connectionId = connectionService.create(serviceId);
         CreateResponse createResponse = new CreateResponse();
-        createResponse.setConnectionId(connectionId);
+        try {
+            String connectionId = connectionService.create(serviceId);
+            createResponse.setConnectionId(connectionId);
+            createResponse.setTaskStatus(1);
+        } catch (Exception e) {
+            createResponse.setTaskStatus(0);
+            createResponse.setErrorMsg(e.getMessage());
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+        }
         return createResponse;
     }
 
@@ -50,8 +54,17 @@ public class ConnectionImpl implements IConnection {
      */
     @Override
     public Response close(String connectionId) {
-        connectionService.delete(connectionId);
         Response response = new Response();
+        try {
+            connectionService.delete(connectionId);
+            response.setTaskStatus(1);
+        } catch (Exception e) {
+            response.setTaskStatus(0);
+            response.setErrorMsg(e.getMessage());
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+        }
         return response;
     }
 }

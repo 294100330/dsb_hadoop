@@ -1,9 +1,9 @@
 package paas.storage.distributedFileSystem;
 
-import cn.hutool.core.io.FileUtil;
 import lombok.extern.log4j.Log4j2;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import paas.storage.component.IFileInputStreamService;
@@ -41,14 +41,24 @@ public class FileStreamImpl implements IFileStream {
      */
     @Override
     public CreateResponse create(String connectionId, String filePath, int streamType, int mode) {
-        String streamId = null;
-        if (1 == streamType) {
-            streamId = iFileInputStreamService.create(connectionId, filePath);
-        } else if (2 == streamType) {
-            streamId = iFileOutStreamService.create(connectionId, filePath, mode);
-        }
         CreateResponse createResponse = new CreateResponse();
-        createResponse.setStreamId(streamId);
+        try {
+            String streamId = null;
+            if (1 == streamType) {
+                streamId = iFileInputStreamService.create(connectionId, filePath);
+            } else if (2 == streamType) {
+                streamId = iFileOutStreamService.create(connectionId, filePath, mode);
+            }
+            createResponse.setTaskStatus(1);
+            createResponse.setStreamId(streamId);
+        } catch (Exception e) {
+            createResponse.setTaskStatus(0);
+            createResponse.setErrorMsg(e.getMessage());
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+        }
+
         return createResponse;
     }
 
@@ -63,14 +73,18 @@ public class FileStreamImpl implements IFileStream {
      */
     @Override
     public ReadResponse read(String streamId, byte[] byteArray, int offSet, int length) {
-        FSDataInputStream fsDataInputStream = iFileInputStreamService.get(streamId);
-        try {
-            fsDataInputStream.read(byteArray, offSet, length);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         ReadResponse readResponse = new ReadResponse();
-        readResponse.setLength(byteArray.length);
+        try {
+            FSDataInputStream fsDataInputStream = iFileInputStreamService.get(streamId);
+            IOUtils.wrappedReadForCompressedData(fsDataInputStream, byteArray, offSet, length);
+            readResponse.setLength(byteArray.length);
+        } catch (IOException e) {
+            readResponse.setTaskStatus(0);
+            readResponse.setErrorMsg(e.getMessage());
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+        }
         return readResponse;
     }
 
@@ -84,29 +98,34 @@ public class FileStreamImpl implements IFileStream {
      */
     @Override
     public ReadlinesResponse readlines(String streamId, String encode, int readMethod) {
-        FSDataInputStream fsDataInputStream = iFileInputStreamService.get(streamId);
         ReadlinesResponse readlinesResponse = new ReadlinesResponse();
-        StringBuilder stringBuilder = new StringBuilder();
-        if (1 == readMethod) {
-            try {
+        try {
+            FSDataInputStream fsDataInputStream = iFileInputStreamService.get(streamId);
+            //1表示逐行读取
+            if (1 == readMethod) {
+                StringBuilder stringBuilder = new StringBuilder();
                 // 防止中文乱码
                 BufferedReader bf = new BufferedReader(new InputStreamReader(fsDataInputStream));
                 String line = null;
                 while ((line = bf.readLine()) != null) {
-                    stringBuilder.append(new String(line.getBytes(), StandardCharsets.UTF_8));
+                    stringBuilder.append(new String(line.getBytes(), encode));
                 }
-            } catch (IOException e) {
+                readlinesResponse.setStringList(stringBuilder.toString());
+                //2 表示全部读取。
+            } else if (2 == readMethod) {
+                byte[] bytes = new byte[fsDataInputStream.available()];
+                IOUtils.readFully(fsDataInputStream, bytes, 0, bytes.length);
+                readlinesResponse.setStringList(new String(bytes, encode));
+            }
+            readlinesResponse.setTaskStatus(1);
+        } catch (Exception e) {
+            readlinesResponse.setTaskStatus(0);
+            readlinesResponse.setErrorMsg(e.getMessage());
+            if (log.isErrorEnabled()) {
                 log.error(e.getMessage(), e);
             }
-        } else if (2 == readMethod) {
-            try {
-                fsDataInputStream.read();
-
-            } catch (Exception e) {
-
-            }
         }
-        readlinesResponse.setStringList(stringBuilder.toString());
+
         return readlinesResponse;
     }
 
@@ -121,14 +140,19 @@ public class FileStreamImpl implements IFileStream {
      */
     @Override
     public WriteResponse write(String streamId, byte[] byteArray, int offSet, int length) {
-        FSDataOutputStream fsDataOutputStream = iFileOutStreamService.get(streamId);
-        try {
-            fsDataOutputStream.write(byteArray, offSet, offSet);
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-        }
         WriteResponse writeResponse = new WriteResponse();
-        writeResponse.setLength(length);
+        try {
+            FSDataOutputStream fsDataOutputStream = iFileOutStreamService.get(streamId);
+            fsDataOutputStream.write(byteArray, offSet, offSet);
+            writeResponse.setTaskStatus(1);
+            writeResponse.setLength(length);
+        } catch (IOException e) {
+            writeResponse.setTaskStatus(0);
+            writeResponse.setErrorMsg(e.getMessage());
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+        }
         return writeResponse;
     }
 
@@ -141,16 +165,20 @@ public class FileStreamImpl implements IFileStream {
      */
     @Override
     public Response writeline(String streamId, String string) {
-
-        FSDataOutputStream fsDataOutputStream = iFileOutStreamService.get(streamId);
-        // 以UTF-8格式写入文件，不乱码
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fsDataOutputStream, StandardCharsets.UTF_8));
-        try {
-            writer.write(string);
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-        }
         Response response = new Response();
+        try {
+            FSDataOutputStream fsDataOutputStream = iFileOutStreamService.get(streamId);
+            // 以UTF-8格式写入文件，不乱码
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fsDataOutputStream, StandardCharsets.UTF_8));
+            writer.write(string);
+            response.setTaskStatus(1);
+        } catch (IOException e) {
+            response.setTaskStatus(0);
+            response.setErrorMsg(e.getMessage());
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+        }
         return response;
     }
 
@@ -162,12 +190,19 @@ public class FileStreamImpl implements IFileStream {
      */
     @Override
     public CloseResponse close(String streamId) {
-        iFileOutStreamService.delete(streamId);
-        iFileInputStreamService.delete(streamId);
         CloseResponse closeResponse = new CloseResponse();
-        closeResponse.setStreamId(streamId);
+        try {
+            iFileOutStreamService.delete(streamId);
+            iFileInputStreamService.delete(streamId);
+            closeResponse.setStreamId(streamId);
+            closeResponse.setTaskStatus(1);
+        } catch (Exception e) {
+            closeResponse.setTaskStatus(0);
+            closeResponse.setErrorMsg(e.getMessage());
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+        }
         return closeResponse;
     }
-
-
 }

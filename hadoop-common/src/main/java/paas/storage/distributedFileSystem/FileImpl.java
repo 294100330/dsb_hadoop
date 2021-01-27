@@ -39,14 +39,19 @@ public class FileImpl implements IFile {
      */
     @Override
     public CreateResponse create(String connectionId, String filePath) {
-        FileSystem fileSystem = connectionService.get(connectionId);
-        try {
-            fileSystem.mkdirs(new Path(filePath));
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
         CreateResponse createResponse = new CreateResponse();
-        createResponse.setFilePath(filePath);
+        try {
+            FileSystem fileSystem = connectionService.get(connectionId);
+            fileSystem.mkdirs(new Path(filePath));
+            createResponse.setTaskStatus(1);
+            createResponse.setFilePath(filePath);
+        } catch (Exception e) {
+            createResponse.setErrorMsg(e.getMessage());
+            createResponse.setTaskStatus(0);
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+        }
         return createResponse;
     }
 
@@ -61,14 +66,20 @@ public class FileImpl implements IFile {
      */
     @Override
     public Response delete(String connectionId, String filePath, int objectType, int recursive) {
-        FileSystem fileSystem = connectionService.get(connectionId);
-        Path path = new Path(filePath);
+        Response response = new Response();
         try {
+            FileSystem fileSystem = connectionService.get(connectionId);
+            Path path = new Path(filePath);
             fileSystem.delete(path, 1 == objectType);
+            response.setTaskStatus(1);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            response.setTaskStatus(0);
+            response.setErrorMsg(e.getMessage());
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
-        return new Response();
+        return response;
     }
 
     /**
@@ -82,10 +93,19 @@ public class FileImpl implements IFile {
     @Override
     @SneakyThrows
     public RenameResponse rename(String connectionId, String srcPath, String dstPath) {
-        FileSystem fileSystem = connectionService.get(connectionId);
-        fileSystem.rename(new Path(srcPath), new Path(dstPath));
         RenameResponse response = new RenameResponse();
-        response.setDstFile(dstPath);
+        try {
+            FileSystem fileSystem = connectionService.get(connectionId);
+            fileSystem.rename(new Path(srcPath), new Path(dstPath));
+            response.setDstFile(dstPath);
+            response.setTaskStatus(1);
+        } catch (Exception e) {
+            response.setTaskStatus(0);
+            response.setErrorMsg(e.getMessage());
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+        }
         return response;
     }
 
@@ -113,8 +133,13 @@ public class FileImpl implements IFile {
                 //复制
                 FileContext.getFileContext(fileSystem.getUri(), fileSystem.getConf()).util().copy(srcPath1, dstPath1, false, 2 == overwrite);
             }
+            response.setTaskStatus(1);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            response.setTaskStatus(0);
+            response.setErrorMsg(e.getMessage());
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
         return response;
     }
@@ -134,6 +159,7 @@ public class FileImpl implements IFile {
         GetFileListResponse getFileListResponse = new GetFileListResponse();
         try {
             FileSystem fileSystem = connectionService.get(connectionId);
+            //迭代查询
             RemoteIterator<LocatedFileStatus> remoteIterator = fileSystem.listFiles(new Path(filePath), 1 == recursive);
             List<LocatedFileStatus> locatedFileStatuses = new ArrayList<>();
             while (remoteIterator.hasNext()) {
@@ -150,9 +176,14 @@ public class FileImpl implements IFile {
                         map.put("isDir", locatedFileStatus.isDirectory() ? 1 : 0);
                         return map;
                     }).collect(Collectors.toList());
+            getFileListResponse.setTaskStatus(1);
             getFileListResponse.setFileList(JSONUtil.toJsonStr(list));
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            getFileListResponse.setTaskStatus(0);
+            getFileListResponse.setErrorMsg(e.getMessage());
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
         }
         return getFileListResponse;
     }
@@ -167,10 +198,19 @@ public class FileImpl implements IFile {
     @Override
     @SneakyThrows
     public FileExistResponse fileExist(String connectionId, String filePath) {
-        FileSystem fileSystem = connectionService.get(connectionId);
-        boolean exists = fileSystem.exists(new Path(filePath));
         FileExistResponse fileExistResponse = new FileExistResponse();
-        fileExistResponse.setResult(exists ? 1 : 0);
+        try {
+            FileSystem fileSystem = connectionService.get(connectionId);
+            boolean exists = fileSystem.exists(new Path(filePath));
+            fileExistResponse.setTaskStatus(1);
+            fileExistResponse.setResult(exists ? 1 : 0);
+        } catch (Exception e) {
+            fileExistResponse.setTaskStatus(0);
+            fileExistResponse.setErrorMsg(e.getMessage());
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+        }
         return fileExistResponse;
     }
 
@@ -184,12 +224,21 @@ public class FileImpl implements IFile {
     @Override
     @SneakyThrows
     public GetFileInfoResponse getFileInfo(String connectionId, String fileName) {
-        FileSystem fileSystem = connectionService.get(connectionId);
-        fileSystem.getStatus();
-        FileStatus fileStatus = fileSystem.getFileStatus(new Path(fileName));
         GetFileInfoResponse getFileInfoResponse = new GetFileInfoResponse();
-        String jsonText = JSONUtil.toJsonStr(fileStatus);
-        getFileInfoResponse.setFileDetails(jsonText);
+        try {
+            FileSystem fileSystem = connectionService.get(connectionId);
+            fileSystem.getStatus();
+            FileStatus fileStatus = fileSystem.getFileStatus(new Path(fileName));
+            String jsonText = JSONUtil.toJsonStr(fileStatus);
+            getFileInfoResponse.setTaskStatus(1);
+            getFileInfoResponse.setFileDetails(jsonText);
+        } catch (Exception e) {
+            getFileInfoResponse.setTaskStatus(0);
+            getFileInfoResponse.setErrorMsg(e.getMessage());
+            if (log.isErrorEnabled()) {
+                log.error(e.getMessage(), e);
+            }
+        }
         return getFileInfoResponse;
     }
 
