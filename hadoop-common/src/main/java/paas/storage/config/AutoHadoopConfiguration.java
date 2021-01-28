@@ -6,12 +6,14 @@ import org.apache.hadoop.fs.FileSystem;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
 import paas.storage.component.*;
 import paas.storage.properties.HadoopProperties;
 
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 
 /**
@@ -23,6 +25,7 @@ import java.util.Map;
 @Data
 @Log4j2
 @Configuration
+@ComponentScan("paas.storage")
 @EnableConfigurationProperties({HadoopProperties.class})
 public class AutoHadoopConfiguration {
 
@@ -44,17 +47,19 @@ public class AutoHadoopConfiguration {
         return new DefaultIFileOutStreamServiceImpl();
     }
 
-    @Bean
-    @Scope("prototype")
-    public FileSystem fileSystem(HadoopProperties hadoopProperties) {
+    /**
+     * 创建 fileSystem
+     *
+     * @param hadoopProperties
+     * @return
+     * @throws URISyntaxException
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public FileSystem createFileSystem(HadoopProperties hadoopProperties) throws URISyntaxException, IOException, InterruptedException {
         // 文件系统
-        FileSystem fileSystem = null;
-        try {
-            URI uri = new URI(hadoopProperties.getFsUri().trim());
-            fileSystem = FileSystem.get(uri, this.getConfiguration(hadoopProperties), hadoopProperties.getUser());
-        } catch (Exception e) {
-            log.error("【FileSystem配置初始化失败】", e);
-        }
+        URI uri = new URI(hadoopProperties.getFsUri().trim());
+        FileSystem fileSystem = FileSystem.get(uri, this.getConfiguration(hadoopProperties), hadoopProperties.getUser());
         return fileSystem;
     }
 

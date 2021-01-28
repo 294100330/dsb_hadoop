@@ -6,7 +6,9 @@ import lombok.Data;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import paas.storage.config.AutoHadoopConfiguration;
 import paas.storage.exception.QCRuntimeException;
+import paas.storage.properties.HadoopProperties;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,7 +24,10 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
     private static final Map<String, FileSystemData> MAP = new ConcurrentHashMap<>();
 
     @Autowired
-    private FileSystem fileSystem;
+    private HadoopProperties hadoopProperties;
+
+    @Autowired
+    private AutoHadoopConfiguration autoHadoopConfiguration;
 
     /**
      * 创建
@@ -32,9 +37,15 @@ public class DefaultConnectionServiceImpl implements ConnectionService {
      */
     @Override
     public String create(String serviceId) {
-        String connectionId = this.getConnectionId();
-        FileSystemData fileSystemData = FileSystemData.builder().serviceId(serviceId).fileSystem(fileSystem).build();
-        DefaultConnectionServiceImpl.MAP.put(connectionId, fileSystemData);
+        String connectionId = null;
+        try {
+            connectionId = this.getConnectionId();
+            FileSystem fileSystem = autoHadoopConfiguration.createFileSystem(hadoopProperties);
+            FileSystemData fileSystemData = FileSystemData.builder().serviceId(serviceId).fileSystem(fileSystem).build();
+            DefaultConnectionServiceImpl.MAP.put(connectionId, fileSystemData);
+        } catch (Exception e) {
+            throw new QCRuntimeException(e.getMessage(), e);
+        }
         return connectionId;
     }
 

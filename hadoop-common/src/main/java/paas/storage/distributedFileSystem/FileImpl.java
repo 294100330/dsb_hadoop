@@ -5,15 +5,19 @@ import cn.hutool.json.JSONUtil;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
 import paas.storage.component.ConnectionService;
+import paas.storage.config.AutoHadoopConfiguration;
 import paas.storage.connection.Response;
 import paas.storage.distributedFileSystem.file.response.*;
+import paas.storage.properties.HadoopProperties;
 import paas.storage.utils.AssertUtils;
-import paas.storage.utils.AuthorityUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,10 +33,16 @@ import java.util.stream.Collectors;
  */
 @Log4j2
 @Configuration
-public class FileImpl implements IFile {
+public class FileImpl implements IFile, ApplicationRunner {
 
     @Autowired
     private ConnectionService connectionService;
+    @Autowired
+    private HadoopProperties hadoopProperties;
+    @Autowired
+    private AutoHadoopConfiguration autoHadoopConfiguration;
+
+    private FileSystem fileSystem;
 
     /**
      * 创建目录
@@ -261,13 +271,13 @@ public class FileImpl implements IFile {
             StringBuilder stringBuilder = new StringBuilder(fileStatus.getPermission().getUserAction().SYMBOL)
                     .append(fileStatus.getPermission().getGroupAction().SYMBOL)
                     .append(fileStatus.getPermission().getOtherAction().SYMBOL);
-            Map<String,Object> map = new HashMap<>();
-            map.put("path",fileStatus.getPath().getName());
-            map.put("isdir",fileStatus.isDirectory());
-            map.put("accessTime",fileStatus.getAccessTime());
-            map.put("permission",stringBuilder.toString());
-            map.put("owner",fileStatus.getOwner());
-            map.put("group",fileStatus.getGroup());
+            Map<String, Object> map = new HashMap<>();
+            map.put("path", fileStatus.getPath().getName());
+            map.put("isdir", fileStatus.isDirectory());
+            map.put("accessTime", fileStatus.getAccessTime());
+            map.put("permission", stringBuilder.toString());
+            map.put("owner", fileStatus.getOwner());
+            map.put("group", fileStatus.getGroup());
             String jsonText = JSONUtil.toJsonStr(map);
             getFileInfoResponse.setTaskStatus(1);
             getFileInfoResponse.setFileDetails(jsonText);
@@ -283,10 +293,11 @@ public class FileImpl implements IFile {
 
     /**
      * 文件权限设置
+     * 因为没有传递
      *
      * @param fullPath  必填 文件或目录路径
-     * @param userGroup 必填 用户组
-     * @param user      必填 用户
+     * @param userGroup 必填 用户组 二选一
+     * @param user      必填 用户 二选一
      * @param authority 可选 权限  RWX形式,设置访问权限时需填写，为空表示设置文件或目录的所有者。
      * @param beInherit 可选 是否子目录继承 1表示是，2表示否；默认为否。
      * @return
@@ -295,13 +306,18 @@ public class FileImpl implements IFile {
     public Response setAuthority(String fullPath, String userGroup, String user, String authority, int beInherit) {
         Response response = new Response();
         try {
-            FileSystem fileSystem = connectionService.get("connectionId");
-            FsPermission fsPermission = AuthorityUtils.fileSystemAction(authority);
+            FsPermission fsPermission = new FsPermission(authority);
             Path path = new Path(fullPath);
             fileSystem.setPermission(path, fsPermission);
-            fileSystem.setOwner(path, user, userGroup);
+            fileSystem.setOwner(path,user,userGroup);
+            if (1 == beInherit) {
+                RemoteIterator<LocatedFileStatus> remoteIterator = fileSystem.listFiles(path, true);
+                while (remoteIterator.hasNext()) {
+                    LocatedFileStatus locatedFileStatus = remoteIterator.next();
+                    fileSystem.setPermission(locatedFileStatus.getPath(),fsPermission);
+                }
+            }
             response.setTaskStatus(1);
-
         } catch (Exception e) {
             response.setTaskStatus(0);
             response.setErrorMsg(e.getMessage());
@@ -313,4 +329,8 @@ public class FileImpl implements IFile {
     }
 
 
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        this.fileSystem = autoHadoopConfiguration.createFileSystem(hadoopProperties);
+    }
 }
