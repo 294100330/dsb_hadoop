@@ -77,9 +77,11 @@ public class AutoHadoopConfiguration {
         org.apache.hadoop.conf.Configuration conf = new org.apache.hadoop.conf.Configuration();
         conf.set("fs.defaultFS", hadoopProperties.getFsUri());
         Map<String, String> config = hadoopProperties.getConfig();
-        config.forEach((key, value) -> {
-            conf.set(key, value);
-        });
+        if(config!=null){
+            config.forEach((key, value) -> {
+                conf.set(key, value);
+            });
+        }
         return conf;
     }
 

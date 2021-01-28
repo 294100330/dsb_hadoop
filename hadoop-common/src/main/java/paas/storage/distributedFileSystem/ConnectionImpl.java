@@ -1,7 +1,6 @@
 package paas.storage.distributedFileSystem;
 
 import cn.hutool.core.util.StrUtil;
-import com.qingcloud.sdk.service.InstanceService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -35,7 +34,7 @@ public class ConnectionImpl implements IConnection {
      *
      * @param serviceId    必填 服务唯一标识 分布式文件系统服务唯一标识。
      * @param accessToken  必填 用户身份令牌  支持OAuth、LDAP等身份认证协议的TOKEN。 token 是 ak|sk 的格式，中间用 | 分割，用上述 sdk 进行 token 校验。
-     * @param expendParams 可选
+     * @param expendParams 可选 扩展参数
      * @return
      */
     @Override
@@ -43,7 +42,14 @@ public class ConnectionImpl implements IConnection {
         CreateResponse createResponse = new CreateResponse();
         try {
             AssertUtils.isTrue(!StringUtils.isEmpty(serviceId), "serviceId:服务唯一标识不能为空");
+            AssertUtils.charLengthLe(serviceId, 1024, "serviceId:服务唯一标识字符定长不能超过1024");
             AssertUtils.isTrue(!StringUtils.isEmpty(accessToken), "accessToken:用户身份令牌不能为空");
+            AssertUtils.charLengthLe(accessToken, 128, "serviceId:用户身份令牌字符定长不能超过128");
+
+            if (expendParams != null) {
+                AssertUtils.charLengthLe(expendParams, 4000, "expendParams:扩展参数字符定长不能超过4000");
+            }
+
             String[] strings = null;
             try {
                 strings = StrUtil.split(accessToken, Constants.TOKEN_SEPARATOR);
@@ -52,7 +58,7 @@ public class ConnectionImpl implements IConnection {
             }
             AssertUtils.isTrue(2 == strings.length, "token 是 ak|sk 的格式");
             //报错了就是 ak或者sk 在qcloud那边解析不正确
-             authService.authentication(strings[0], strings[1]);
+            authService.authentication(strings[0], strings[1]);
 
             String connectionId = connectionService.create(serviceId);
             createResponse.setConnectionId(connectionId);
@@ -71,7 +77,7 @@ public class ConnectionImpl implements IConnection {
     /**
      * 关闭文件系统连接
      *
-     * @param connectionId 必填 文件系统连接标识
+     * @param connectionId 必填 文c
      * @return
      */
     @Override
@@ -79,6 +85,7 @@ public class ConnectionImpl implements IConnection {
         Response response = new Response();
         try {
             AssertUtils.isTrue(!StringUtils.isEmpty(connectionId), "connectionId:文件系统连接标识不能为空");
+            AssertUtils.charLengthLe(connectionId, 1024, "connectionId:文件系统连接标识字符定长不能超过1024");
 
             connectionService.delete(connectionId);
             response.setTaskStatus(1);

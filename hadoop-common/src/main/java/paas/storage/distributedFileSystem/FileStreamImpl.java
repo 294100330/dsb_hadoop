@@ -37,7 +37,7 @@ public class FileStreamImpl implements IFileStream {
      * 创建流
      *
      * @param connectionId 必填 文件系统连接标识
-     * @param filePath     必填文件路径 文件的绝对路径。
+     * @param filePath     必填 文件路径 文件的绝对路径。
      * @param streamType   必填 流类型 1：输入流；2:输出流。
      * @param mode         可选 写入模式 1表示追加，2表示覆盖。
      * @return
@@ -47,7 +47,11 @@ public class FileStreamImpl implements IFileStream {
         CreateResponse createResponse = new CreateResponse();
         try {
             AssertUtils.isTrue(!StringUtils.isEmpty(connectionId), "connectionId:文件系统连接标识不能为空");
-            AssertUtils.isTrue(!StringUtils.isEmpty(filePath), "fileName:文件名不能为空");
+            AssertUtils.charLengthLe(connectionId, 1024, "connectionId:文件系统连接标识字符定长不能超过1024");
+
+            AssertUtils.isTrue(!StringUtils.isEmpty(filePath), "filePath:文件路径不能为空");
+            AssertUtils.charLengthLe(filePath, 1024, "filePath:文件路径符定长不能超过1024");
+
             AssertUtils.isTrue(1 == streamType || 2 == streamType, "streamType:流类型限定在1或2");
 
             String streamId = null;
@@ -83,6 +87,8 @@ public class FileStreamImpl implements IFileStream {
         ReadResponse readResponse = new ReadResponse();
         try {
             AssertUtils.isTrue(!StringUtils.isEmpty(streamId), "streamId:流对象唯一标识不能为空");
+            AssertUtils.charLengthLe(streamId, 1024, "streamId:流对象唯一标识字符定长不能超过1024");
+
             AssertUtils.isTrue(byteArray != null, "byteArray:字节数组不能为空");
 
             FSDataInputStream fsDataInputStream = iFileInputStreamService.get(streamId);
@@ -111,6 +117,8 @@ public class FileStreamImpl implements IFileStream {
         ReadlinesResponse readlinesResponse = new ReadlinesResponse();
         try {
             AssertUtils.isTrue(!StringUtils.isEmpty(streamId), "streamId:流对象唯一标识不能为空");
+            AssertUtils.charLengthLe(streamId, 1024, "streamId:流对象唯一标识字符定长不能超过1024");
+
             AssertUtils.isTrue(1 == readMethod || 2 == readMethod, "readMethod:读取方法限定在1或2");
 
             encode = !StringUtils.isEmpty(encode) ? encode : Charset.defaultCharset().name();
@@ -159,12 +167,16 @@ public class FileStreamImpl implements IFileStream {
         WriteResponse writeResponse = new WriteResponse();
         try {
             AssertUtils.isTrue(!StringUtils.isEmpty(streamId), "streamId:流对象唯一标识不能为空");
-            AssertUtils.isTrue(byteArray !=null,"byteArray:字节数组不能为空");
+            AssertUtils.charLengthLe(streamId, 1024, "streamId:流对象唯一标识字符定长不能超过1024");
+
+            AssertUtils.isTrue(byteArray != null, "byteArray:字节数组不能为空");
+
+//            AssertUtils.charLengthLe(String.valueOf(byteArray), 4000, "byteArray:字节数组长度最大限定在4000");
 
             FSDataOutputStream fsDataOutputStream = iFileOutStreamService.get(streamId);
-            fsDataOutputStream.write(byteArray, offSet, offSet);
+            fsDataOutputStream.write(byteArray, offSet, length);
             writeResponse.setTaskStatus(1);
-            writeResponse.setLength(length);
+            writeResponse.setLength(byteArray.length);
         } catch (IOException e) {
             writeResponse.setTaskStatus(0);
             writeResponse.setErrorMsg(e.getMessage());
@@ -187,8 +199,10 @@ public class FileStreamImpl implements IFileStream {
         Response response = new Response();
         try {
             AssertUtils.isTrue(!StringUtils.isEmpty(streamId), "streamId:流对象唯一标识不能为空");
-            AssertUtils.isTrue(!StringUtils.isEmpty(string), "string:字符串不能为空");
+            AssertUtils.charLengthLe(streamId, 1024, "streamId:流对象唯一标识字符定长不能超过1024");
 
+            AssertUtils.isTrue(!StringUtils.isEmpty(string), "string:字符串不能为空");
+            AssertUtils.charLengthLe(string, 4000, "string:字符串字符定长不能超过4000");
 
             FSDataOutputStream fsDataOutputStream = iFileOutStreamService.get(streamId);
             // 以UTF-8格式写入文件，不乱码
@@ -216,7 +230,7 @@ public class FileStreamImpl implements IFileStream {
         CloseResponse closeResponse = new CloseResponse();
         try {
             AssertUtils.isTrue(!StringUtils.isEmpty(streamId), "streamId:流对象唯一标识不能为空");
-
+            AssertUtils.charLengthLe(streamId, 1024, "streamId:流对象唯一标识字符定长不能超过1024");
 
             iFileOutStreamService.delete(streamId);
             iFileInputStreamService.delete(streamId);

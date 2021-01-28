@@ -32,15 +32,8 @@ public class HdfsOperation {
         HdfsOperation hdfsOperation = new HdfsOperation();
         try {
             hdfsOperation.hdfs = HdfsOperation.getFileSystem();
-            hdfsOperation.mkdir("cehsidaxiao");
-            int num = 0;
-            do {
-                num +=1;
-                ThreadUtil.execAsync(()->{
-                hdfsOperation.copyLocalFileToHDFS("D:\\office_tool_plus.rar", "cehsidaxiao/"+IdUtil.simpleUUID() + ".rar");
-                });
-            }
-            while (num <= 1000) ;
+            hdfsOperation.mkdir("123214");
+            hdfsOperation.copyLocalFileToHDFS("D://hadoop.txt","123214.txt");
         } catch (Exception e) {
             log.log(Level.SEVERE, e.getMessage(), e);
         }

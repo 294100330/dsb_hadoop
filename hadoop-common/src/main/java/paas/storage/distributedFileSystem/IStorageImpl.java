@@ -28,7 +28,7 @@ public class IStorageImpl implements IStorage {
      * 存储容量及使用量
      *
      * @param connectionId 必填 文件系统连接标识
-     * @param directory    必填 目录
+     * @param directory    可选 目录
      * @return
      */
     @Override
@@ -36,7 +36,10 @@ public class IStorageImpl implements IStorage {
         StorageResponse storageResponse = new StorageResponse();
         try {
             AssertUtils.isTrue(!StringUtils.isEmpty(connectionId), "connectionId:文件系统连接标识不能为空");
-            AssertUtils.isTrue(!StringUtils.isEmpty(directory), "directory:目录不能为空");
+            AssertUtils.charLengthLe(connectionId, 1024, "connectionId:文件系统连接标识字符定长不能超过1024");
+
+            //文档上是可选的，不传又要报错，就弄个根路径吧
+            directory = directory != null ? directory : "/";
 
             FileSystem fileSystem = connectionService.get(connectionId);
             ContentSummary contentSummary = fileSystem.getContentSummary(new Path(directory));

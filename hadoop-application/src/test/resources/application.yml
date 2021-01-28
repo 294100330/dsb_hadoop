@@ -1,0 +1,11 @@
+server:
+  port: 18881
+
+hadoop:
+  fs-uri: hdfs://192.168.5.2:9000
+  user: root
+  config:
+    dfs:
+      support:
+        append: true
+      replication: 1

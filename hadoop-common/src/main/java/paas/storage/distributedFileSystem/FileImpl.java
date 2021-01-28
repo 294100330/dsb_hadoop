@@ -5,7 +5,6 @@ import cn.hutool.json.JSONUtil;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.apache.hadoop.fs.*;
-import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -23,7 +22,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 文件访问 实现层
@@ -37,8 +35,10 @@ public class FileImpl implements IFile, ApplicationRunner {
 
     @Autowired
     private ConnectionService connectionService;
+
     @Autowired
     private HadoopProperties hadoopProperties;
+
     @Autowired
     private AutoHadoopConfiguration autoHadoopConfiguration;
 
@@ -56,7 +56,10 @@ public class FileImpl implements IFile, ApplicationRunner {
         CreateResponse createResponse = new CreateResponse();
         try {
             AssertUtils.isTrue(!StringUtils.isEmpty(connectionId), "connectionId:connectionId不能为空");
+            AssertUtils.charLengthLe(connectionId, 1024, "connectionId:文件系统连接标识字符定长不能超过1024");
+
             AssertUtils.isTrue(!StringUtils.isEmpty(filePath), "filePath:filePath不能为空");
+            AssertUtils.charLengthLe(filePath, 1024, "filePath:目录路径字符定长不能超过1024");
 
             FileSystem fileSystem = connectionService.get(connectionId);
             fileSystem.mkdirs(new Path(filePath));
@@ -86,7 +89,12 @@ public class FileImpl implements IFile, ApplicationRunner {
         Response response = new Response();
         try {
             AssertUtils.isTrue(!StringUtils.isEmpty(connectionId), "connectionId:文件系统连接标识不能为空");
+            AssertUtils.charLengthLe(connectionId, 1024, "connectionId:文件系统连接标识字符定长不能超过1024");
+
             AssertUtils.isTrue(!StringUtils.isEmpty(filePath), "filePath:文件路径不能为空");
+            AssertUtils.charLengthLe(filePath, 1024, "filePath:目录路径字符定长不能超过1024");
+
+
             AssertUtils.isTrue(1 == objectType || 2 == objectType, "objectType:操作对象类型限定在1或2");
             AssertUtils.isTrue(1 == recursive || 2 == recursive, "recursive:是否递归限定在1或2");
 
@@ -117,8 +125,15 @@ public class FileImpl implements IFile, ApplicationRunner {
         RenameResponse response = new RenameResponse();
         try {
             AssertUtils.isTrue(!StringUtils.isEmpty(connectionId), "connectionId:文件系统连接标识不能为空");
+            AssertUtils.charLengthLe(connectionId, 1024, "connectionId:文件系统连接标识字符定长不能超过1024");
+
+
             AssertUtils.isTrue(!StringUtils.isEmpty(srcPath), "srcPath:源文件不能为空");
+            AssertUtils.charLengthLe(srcPath, 1024, "srcPath:源文件字符定长不能超过1024");
+
             AssertUtils.isTrue(!StringUtils.isEmpty(dstPath), "dstPath:目标文件不能为空");
+            AssertUtils.charLengthLe(dstPath, 1024, "dstPath:目标文件字符定长不能超过1024");
+
 
             FileSystem fileSystem = connectionService.get(connectionId);
             fileSystem.rename(new Path(srcPath), new Path(dstPath));
@@ -149,8 +164,15 @@ public class FileImpl implements IFile, ApplicationRunner {
         Response response = new Response();
         try {
             AssertUtils.isTrue(!StringUtils.isEmpty(connectionId), "connectionId:文件系统连接标识不能为空");
+            AssertUtils.charLengthLe(connectionId, 1024, "connectionId:文件系统连接标识字符定长不能超过1024");
+
             AssertUtils.isTrue(!StringUtils.isEmpty(srcPath), "srcPath:源文件路径不能为空");
+            AssertUtils.charLengthLe(srcPath, 1024, "srcPath:源文件路径定长不能超过1024");
+
             AssertUtils.isTrue(!StringUtils.isEmpty(dstPath), "dstPath:目的文件路径不能为空");
+            AssertUtils.charLengthLe(dstPath, 1024, "dstPath:目的文件路径字符定长不能超过1024");
+
+
             AssertUtils.isTrue(1 == operator || 2 == operator, "operator:操作类型限定在1或2");
             AssertUtils.isTrue(1 == overwrite || 2 == overwrite, "overwrite:是否覆盖限定在1或2");
 
@@ -162,7 +184,7 @@ public class FileImpl implements IFile, ApplicationRunner {
                 boolean result = fileSystem.rename(srcPath1, dstPath1);
             } else if (2 == operator) {
                 //复制
-                FileContext.getFileContext(fileSystem.getUri(), fileSystem.getConf()).util().copy(srcPath1, dstPath1, false, 2 == overwrite);
+                FileContext.getFileContext(fileSystem.getUri(), fileSystem.getConf()).util().copy(srcPath1, dstPath1, false, 1 == overwrite);
             }
             response.setTaskStatus(1);
         } catch (Exception e) {
@@ -189,27 +211,32 @@ public class FileImpl implements IFile, ApplicationRunner {
         GetFileListResponse getFileListResponse = new GetFileListResponse();
         try {
             AssertUtils.isTrue(!StringUtils.isEmpty(connectionId), "connectionId:文件系统连接标识不能为空");
+            AssertUtils.charLengthLe(connectionId, 1024, "connectionId:文件系统连接标识字符定长不能超过1024");
+
             AssertUtils.isTrue(!StringUtils.isEmpty(filePath), "filePath:文件路径不能为空");
+            AssertUtils.charLengthLe(filePath, 1024, "filePath:文件路径字符定长不能超过1024");
+
+            if (filter != null) {
+                AssertUtils.charLengthLe(filter, 1024, "filter:过滤器字符定长不能超过1024");
+            }
             AssertUtils.isTrue(1 == recursive || 2 == recursive, "recursive:递归限定在1或2");
 
             FileSystem fileSystem = connectionService.get(connectionId);
             //迭代查询
             RemoteIterator<LocatedFileStatus> remoteIterator = fileSystem.listFiles(new Path(filePath), 1 == recursive);
-            List<LocatedFileStatus> locatedFileStatuses = new ArrayList<>();
-            while (remoteIterator.hasNext()) {
-                locatedFileStatuses.add(remoteIterator.next());
-            }
+            List<Map<String, Object>> list = new ArrayList<>();
+
             //处理内容
-            List<Map<String, Object>> list = locatedFileStatuses.stream()
-                    //过滤
-                    .filter(locatedFileStatus -> ReUtil.isMatch(locatedFileStatus.getPath().getName(), filter))
-                    //内容处理
-                    .map(locatedFileStatus -> {
-                        Map<String, Object> map = new HashMap<>(2);
-                        map.put("filepath", locatedFileStatus.getPath().getName());
-                        map.put("isDir", locatedFileStatus.isDirectory() ? 1 : 0);
-                        return map;
-                    }).collect(Collectors.toList());
+            while (remoteIterator.hasNext()) {
+                LocatedFileStatus locatedFileStatus = remoteIterator.next();
+                if (ReUtil.isMatch(locatedFileStatus.getPath().getName(), filter)) {
+                    Map<String, Object> map = new HashMap<>(2);
+                    map.put("filepath", locatedFileStatus.getPath().getName());
+                    map.put("isDir", locatedFileStatus.isDirectory() ? 1 : 0);
+                    list.add(map);
+                }
+            }
+
             getFileListResponse.setTaskStatus(1);
             getFileListResponse.setFileList(JSONUtil.toJsonStr(list));
         } catch (Exception e) {
@@ -235,7 +262,11 @@ public class FileImpl implements IFile, ApplicationRunner {
         FileExistResponse fileExistResponse = new FileExistResponse();
         try {
             AssertUtils.isTrue(!StringUtils.isEmpty(connectionId), "connectionId:文件系统连接标识不能为空");
+            AssertUtils.charLengthLe(connectionId, 1024, "connectionId:文件系统连接标识字符定长不能超过1024");
+
             AssertUtils.isTrue(!StringUtils.isEmpty(filePath), "filePath:文件路径不能为空");
+            AssertUtils.charLengthLe(filePath, 1024, "filePath:文件路径字符定长不能超过1024");
+
 
             FileSystem fileSystem = connectionService.get(connectionId);
             boolean exists = fileSystem.exists(new Path(filePath));
@@ -264,7 +295,10 @@ public class FileImpl implements IFile, ApplicationRunner {
         GetFileInfoResponse getFileInfoResponse = new GetFileInfoResponse();
         try {
             AssertUtils.isTrue(!StringUtils.isEmpty(connectionId), "connectionId:文件系统连接标识不能为空");
+            AssertUtils.charLengthLe(connectionId, 1024, "connectionId:文件系统连接标识字符定长不能超过1024");
+
             AssertUtils.isTrue(!StringUtils.isEmpty(fileName), "fileName:文件名不能为空");
+            AssertUtils.charLengthLe(fileName, 1024, "fileName:文件名字符定长不能超过1024");
 
             FileSystem fileSystem = connectionService.get(connectionId);
             FileStatus fileStatus = fileSystem.getFileStatus(new Path(fileName));
@@ -306,15 +340,34 @@ public class FileImpl implements IFile, ApplicationRunner {
     public Response setAuthority(String fullPath, String userGroup, String user, String authority, int beInherit) {
         Response response = new Response();
         try {
+            AssertUtils.isTrue(!StringUtils.isEmpty(fullPath), "fullPath:文件或目录路径不能为空");
+            AssertUtils.charLengthLe(fullPath, 4000, "fullPath:文件或目录路径符定长不能超过1024");
+
+            if (userGroup != null || user != null) {
+                if(userGroup !=null){
+                    AssertUtils.charLengthLe(userGroup, 100, "userGroup:用户组符定长不能超过100");
+                }
+                if(user !=null){
+                AssertUtils.charLengthLe(user, 100, "user:用户符定长不能超过1024");
+                }
+            }
+
+            if(authority !=null){
+                AssertUtils.charLengthLe(authority, 10, "authority:权限字符定长不能超过1024");
+            }
+
+
+            AssertUtils.isTrue(1==beInherit || 2==beInherit ,"beInherit:是否子目录继承限定在1或2");
+
             FsPermission fsPermission = new FsPermission(authority);
             Path path = new Path(fullPath);
             fileSystem.setPermission(path, fsPermission);
-            fileSystem.setOwner(path,user,userGroup);
+            fileSystem.setOwner(path, user, userGroup);
             if (1 == beInherit) {
                 RemoteIterator<LocatedFileStatus> remoteIterator = fileSystem.listFiles(path, true);
                 while (remoteIterator.hasNext()) {
                     LocatedFileStatus locatedFileStatus = remoteIterator.next();
-                    fileSystem.setPermission(locatedFileStatus.getPath(),fsPermission);
+                    fileSystem.setPermission(locatedFileStatus.getPath(), fsPermission);
                 }
             }
             response.setTaskStatus(1);

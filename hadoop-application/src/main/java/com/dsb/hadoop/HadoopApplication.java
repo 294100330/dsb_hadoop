@@ -33,8 +33,6 @@ import java.net.UnknownHostException;
  * 启动类
  * @author 豆沙包
  */
-@Log4j2
-@RestController
 @SpringBootApplication
 public class HadoopApplication {
 
