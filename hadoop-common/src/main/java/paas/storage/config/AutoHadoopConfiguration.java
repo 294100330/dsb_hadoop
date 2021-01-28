@@ -47,6 +47,12 @@ public class AutoHadoopConfiguration {
         return new DefaultIFileOutStreamServiceImpl();
     }
 
+    @Bean
+    @ConditionalOnMissingBean(AuthService.class)
+    public AuthService authService() {
+        return new DefaultAuthService();
+    }
+
     /**
      * 创建 fileSystem
      *

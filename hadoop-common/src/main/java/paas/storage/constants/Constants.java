@@ -8,5 +8,13 @@ package paas.storage.constants;
  */
 public interface Constants {
 
+    /**
+     * 分割符号
+     */
     String SEPARATOR = ":";
+
+    /**
+     * TOKEN 分割符号
+     */
+    String TOKEN_SEPARATOR = "|";
 }
