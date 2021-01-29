@@ -3,6 +3,7 @@ package paas.storage.distributedFileSystem;
 import lombok.extern.log4j.Log4j2;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -171,9 +172,8 @@ public class FileStreamImpl implements IFileStream {
 
             AssertUtils.isTrue(byteArray != null, "byteArray:字节数组不能为空");
 
-//            AssertUtils.charLengthLe(String.valueOf(byteArray), 4000, "byteArray:字节数组长度最大限定在4000");
-
-            FSDataOutputStream fsDataOutputStream = iFileOutStreamService.get(streamId);
+            IFileOutStreamService.IFileOutStreamData iFileOutStreamData = iFileOutStreamService.get(streamId);
+            FSDataOutputStream fsDataOutputStream = iFileOutStreamData.getFsDataOutputStream();
             fsDataOutputStream.write(byteArray, offSet, length);
             writeResponse.setTaskStatus(1);
             writeResponse.setLength(byteArray.length);
@@ -204,12 +204,17 @@ public class FileStreamImpl implements IFileStream {
             AssertUtils.isTrue(!StringUtils.isEmpty(string), "string:字符串不能为空");
             AssertUtils.charLengthLe(string, 4000, "string:字符串字符定长不能超过4000");
 
-            FSDataOutputStream fsDataOutputStream = iFileOutStreamService.get(streamId);
-            // 以UTF-8格式写入文件，不乱码
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fsDataOutputStream, StandardCharsets.UTF_8));
+            IFileOutStreamService.IFileOutStreamData iFileOutStreamData = iFileOutStreamService.get(streamId);
+            FileSystem fileSystem = iFileOutStreamData.getFileSystem();
+            FSDataInputStream fsDataInputStream = fileSystem.open(iFileOutStreamData.getFilePath());
+            FSDataOutputStream fsDataOutputStream = iFileOutStreamData.getFsDataOutputStream();
+            IOUtils.copyBytes(fsDataInputStream, fsDataOutputStream, 4096);
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fsDataOutputStream.getWrappedStream(), StandardCharsets.UTF_8);
+//             以UTF-8格式写入文件，不乱码
+            BufferedWriter writer = new BufferedWriter(outputStreamWriter);
             writer.write(string);
             response.setTaskStatus(1);
-        } catch (IOException e) {
+        } catch (Exception e) {
             response.setTaskStatus(0);
             response.setErrorMsg(e.getMessage());
             if (log.isErrorEnabled()) {

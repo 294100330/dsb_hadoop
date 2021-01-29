@@ -1,8 +1,6 @@
 package paas.storage.component;
 
 import cn.hutool.crypto.SecureUtil;
-import lombok.Builder;
-import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -62,7 +60,11 @@ public class DefaultIFileOutStreamServiceImpl implements IFileOutStreamService {
                 fsDataOutputStream = fileSystem.create(path);
             }
             DefaultIFileOutStreamServiceImpl.IFileOutStreamData fileOutStreamData = IFileOutStreamData
-                    .builder().connectionId(connectionId).filePath(filePath).fsDataOutputStream(fsDataOutputStream).build();
+                    .builder().connectionId(connectionId)
+                    .filePath(new Path(filePath))
+                    .fsDataOutputStream(fsDataOutputStream)
+                    .fileSystem(fileSystem)
+                    .build();
             DefaultIFileOutStreamServiceImpl.MAP.put(streamId, fileOutStreamData);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
@@ -77,13 +79,12 @@ public class DefaultIFileOutStreamServiceImpl implements IFileOutStreamService {
      * @return
      */
     @Override
-    public FSDataOutputStream get(String streamId) {
+    public IFileOutStreamData get(String streamId) {
         DefaultIFileOutStreamServiceImpl.IFileOutStreamData iFileOutStreamData = DefaultIFileOutStreamServiceImpl.MAP.get(streamId);
         if (iFileOutStreamData == null) {
             throw new QCRuntimeException("没有服务");
         }
-        return iFileOutStreamData.getFsDataOutputStream();
-
+        return iFileOutStreamData;
     }
 
     /**
@@ -119,25 +120,4 @@ public class DefaultIFileOutStreamServiceImpl implements IFileOutStreamService {
         return stringBuilder1.toString();
     }
 
-
-    @Data
-    @Builder
-    private static class IFileOutStreamData {
-
-        /**
-         *
-         */
-        private String connectionId;
-
-        /**
-         *
-         */
-        private String filePath;
-
-        /**
-         *
-         */
-        private FSDataOutputStream fsDataOutputStream;
-
-    }
 }

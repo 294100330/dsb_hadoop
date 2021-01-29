@@ -1,7 +1,5 @@
 package com.dsb.hadoop;
 
-import cn.hutool.core.thread.ThreadUtil;
-import cn.hutool.core.util.IdUtil;
 import lombok.SneakyThrows;
 import lombok.extern.java.Log;
 import org.apache.hadoop.conf.Configuration;
@@ -9,6 +7,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.hdfs.protocol.DatanodeInfo;
+import org.apache.hadoop.io.IOUtils;
 
 import java.io.*;
 import java.net.URI;
@@ -32,8 +31,9 @@ public class HdfsOperation {
         HdfsOperation hdfsOperation = new HdfsOperation();
         try {
             hdfsOperation.hdfs = HdfsOperation.getFileSystem();
-            hdfsOperation.mkdir("123214");
-            hdfsOperation.copyLocalFileToHDFS("D://hadoop.txt","123214.txt");
+            hdfsOperation.writerString("1ef5dcd4-209c-4676-b039-928bad9f9c29/494b3638-362c-4747-a31e-2bc86d292c5d.txt","1ef5dcd4-209c-4676-b039-928bad9f9c29/494b3638-362c-4747-a31e-2bc86d292c5d.txt");
+//            hdfsOperation.mkdir("123214");
+//            hdfsOperation.copyLocalFileToHDFS("D://hadoop.txt","123214.txt");
         } catch (Exception e) {
             log.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -411,8 +411,10 @@ public class HdfsOperation {
 
         try {
             Path f = new Path(path);
-            FSDataOutputStream os = hdfs.create(f, true);
+            FSDataInputStream fsDataInputStream =   hdfs.open(f);
+            FSDataOutputStream os = hdfs.append(f);
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8));// 以UTF-8格式写入文件，不乱码
+            IOUtils.copyBytes(fsDataInputStream,os,8);
             writer.write(text);
             writer.close();
             os.close();

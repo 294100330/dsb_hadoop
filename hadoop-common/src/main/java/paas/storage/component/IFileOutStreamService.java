@@ -1,6 +1,10 @@
 package paas.storage.component;
 
+import lombok.Builder;
+import lombok.Data;
 import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 
 /**
  * 文件流输出流管理 服务层
@@ -26,7 +30,7 @@ public interface IFileOutStreamService {
      * @param streamId
      * @return
      */
-    FSDataOutputStream get(String streamId);
+    IFileOutStreamData get(String streamId);
 
     /**
      * 删除
@@ -34,4 +38,29 @@ public interface IFileOutStreamService {
      * @param streamId
      */
     void delete(String streamId);
+
+    @Data
+    @Builder
+    class IFileOutStreamData {
+
+        /**
+         *
+         */
+        private String connectionId;
+
+        /**
+         *
+         */
+        private Path filePath;
+
+        /**
+         *
+         */
+        private FSDataOutputStream fsDataOutputStream;
+
+        /**
+         *
+         */
+        private FileSystem fileSystem;
+    }
 }

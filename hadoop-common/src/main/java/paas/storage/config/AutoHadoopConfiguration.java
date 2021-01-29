@@ -64,6 +64,7 @@ public class AutoHadoopConfiguration {
      */
     public FileSystem createFileSystem(HadoopProperties hadoopProperties) throws URISyntaxException, IOException, InterruptedException {
         // 文件系统
+
         URI uri = new URI(hadoopProperties.getFsUri().trim());
         FileSystem fileSystem = FileSystem.get(uri, this.getConfiguration(hadoopProperties), hadoopProperties.getUser());
         return fileSystem;

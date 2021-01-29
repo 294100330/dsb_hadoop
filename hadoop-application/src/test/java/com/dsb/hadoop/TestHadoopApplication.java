@@ -7,6 +7,7 @@ import com.dsb.hadoop.test.TestIConnectionController;
 import com.dsb.hadoop.test.TestIFileController;
 import com.dsb.hadoop.test.TestIStorageController;
 import lombok.SneakyThrows;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,8 @@ public class TestHadoopApplication {
 
     private static final String upload_path = "D:\\hadoop.txt";
 
+    private CreateResponse createResponse;
+
     @Autowired
     private TestIConnectionController testIConnectionController;
 
@@ -42,11 +45,15 @@ public class TestHadoopApplication {
     @Autowired
     private TestIStorageController testIStorageController;
 
+    @Before
+    public void setUp() {
+        //创建链接
+        createResponse = testIConnectionController.create("1", token, null);
+    }
+
     @Test
     @SneakyThrows
     public void test1() {
-        //创建链接
-        CreateResponse createResponse = testIConnectionController.create("1", token, null);
         //创建目录
         paas.storage.distributedFileSystem.file.response.CreateResponse iFileCreateResponse = testIFileController.create(createResponse.getConnectionId(), UUID.randomUUID().toString());
 
@@ -67,6 +74,14 @@ public class TestHadoopApplication {
 
         //关闭比上传文件流
         testFileStreamController.close(outCreateResponse.getStreamId());
+
+
+        //创建输出流
+        paas.storage.distributedFileSystem.fileStream.response.CreateResponse outCreateResponse1 = testFileStreamController.create(createResponse.getConnectionId(),
+                hdfsFilePath, 2, 1);
+        testFileStreamController.writeline(outCreateResponse1.getStreamId(), "doushabao");
+
+
         //查看文件夹
         testIFileController.getFileList(createResponse.getConnectionId(), iFileCreateResponse.getFilePath(), null, 1);
         //查看文件是否存在
@@ -85,8 +100,55 @@ public class TestHadoopApplication {
         testFileStreamController.close(inputCreateResponse.getStreamId());
         //删除文件
         testIFileController.delete(createResponse.getConnectionId(), hdfsFilePath, 2, 1);
+
         //关闭
         testIConnectionController.close(createResponse.getConnectionId());
+    }
 
+    @Test
+    @SneakyThrows
+    public void test2() {
+        //创建目录
+        paas.storage.distributedFileSystem.file.response.CreateResponse iFileCreateResponse = testIFileController.create(createResponse.getConnectionId(), UUID.randomUUID().toString());
+
+        //拼接上传文件
+        File file = FileUtil.file(upload_path);
+        String type = FileUtil.getType(file);
+        String hdfsFilePath = iFileCreateResponse.getFilePath() + "/" + UUID.randomUUID().toString() + "." + type;
+
+        //创建输出流
+        paas.storage.distributedFileSystem.fileStream.response.CreateResponse outCreateResponse = testFileStreamController.create(createResponse.getConnectionId(),
+                hdfsFilePath, 2, 2);
+
+        InputStream inputStream = FileUtil.getInputStream(file);
+        byte[] bytes = new byte[inputStream.available()];
+        inputStream.read(bytes);
+        WriteResponse writeResponse = testFileStreamController.write(outCreateResponse.getStreamId(), bytes, 0, bytes.length);
+
+        //关闭比上传文件流
+        testFileStreamController.close(outCreateResponse.getStreamId());
+
+        //创建输出流
+        paas.storage.distributedFileSystem.fileStream.response.CreateResponse outCreateResponse2 = testFileStreamController.create(createResponse.getConnectionId(),
+                hdfsFilePath, 2, 1);
+
+        testFileStreamController.writeline(outCreateResponse2.getStreamId(), "豆沙包11");
+
+        testFileStreamController.close(outCreateResponse2.getStreamId());
+
+//        //获取上传文件流
+//        InputStream inputStream = FileUtil.getInputStream(file);
+//        byte[] bytes = new byte[inputStream.available()];
+//        inputStream.read(bytes);
+//        WriteResponse writeResponse = testFileStreamController.write(outCreateResponse.getStreamId(), bytes, 0, bytes.length);
+
+
+        //创建输入流
+        paas.storage.distributedFileSystem.fileStream.response.CreateResponse inputCreateResponse =
+                testFileStreamController.create(createResponse.getConnectionId(), hdfsFilePath, 1, 1);
+        //读取文件
+        testFileStreamController.readlines(inputCreateResponse.getStreamId(), 1);
+        //关闭输入流
+        testFileStreamController.close(inputCreateResponse.getStreamId());
     }
 }

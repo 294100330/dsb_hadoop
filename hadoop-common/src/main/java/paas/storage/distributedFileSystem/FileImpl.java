@@ -367,6 +367,7 @@ public class FileImpl implements IFile, ApplicationRunner {
                 RemoteIterator<LocatedFileStatus> remoteIterator = fileSystem.listFiles(path, true);
                 while (remoteIterator.hasNext()) {
                     LocatedFileStatus locatedFileStatus = remoteIterator.next();
+                    fileSystem.setOwner(locatedFileStatus.getPath(),user, userGroup);
                     fileSystem.setPermission(locatedFileStatus.getPath(), fsPermission);
                 }
             }
