@@ -30,10 +30,7 @@ public class HdfsOperation {
 
         HdfsOperation hdfsOperation = new HdfsOperation();
         try {
-            hdfsOperation.hdfs = HdfsOperation.getFileSystem();
-            hdfsOperation.writerString("1ef5dcd4-209c-4676-b039-928bad9f9c29/494b3638-362c-4747-a31e-2bc86d292c5d.txt","1ef5dcd4-209c-4676-b039-928bad9f9c29/494b3638-362c-4747-a31e-2bc86d292c5d.txt");
-//            hdfsOperation.mkdir("123214");
-//            hdfsOperation.copyLocalFileToHDFS("D://hadoop.txt","123214.txt");
+            hdfsOperation.delete("/");
         } catch (Exception e) {
             log.log(Level.SEVERE, e.getMessage(), e);
         }

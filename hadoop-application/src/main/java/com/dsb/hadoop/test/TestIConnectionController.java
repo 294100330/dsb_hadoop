@@ -1,5 +1,6 @@
 package com.dsb.hadoop.test;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +14,7 @@ import paas.storage.distributedFileSystem.connection.response.CreateResponse;
  * @author 豆沙包
  * Creation time 2021/1/23 20:51
  */
+@Log4j2
 @Configuration
 public class TestIConnectionController {
 
@@ -28,10 +30,10 @@ public class TestIConnectionController {
      * @return
      */
     public CreateResponse create(String serviceId, String accessToken, String expendParams) {
-        System.out.println("====================== 文件流管理 创建流 开始 ============================");
+        log.info("====================== 文件流管理 创建流 开始 ============================");
         CreateResponse response = iConnection.create(serviceId, accessToken, expendParams);
-        System.out.println(response);
-        System.out.println("====================== 文件流管理 创建流 开始 ============================");
+        log.info(response);
+        log.info("====================== 文件流管理 创建流 开始 ============================");
         return response;
     }
 
@@ -42,10 +44,10 @@ public class TestIConnectionController {
      * @return
      */
     public Response close(String connectionId) {
-        System.out.println("====================== 文件流管理 创建流 开始 ============================");
+        log.info("====================== 文件流管理 创建流 开始 ============================");
         Response response = iConnection.close(connectionId);
-        System.out.println(response);
-        System.out.println("====================== 文件流管理 创建流 开始 ============================");
+        log.info(response);
+        log.info("====================== 文件流管理 创建流 开始 ============================");
         return response;
     }
 

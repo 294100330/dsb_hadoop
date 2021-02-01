@@ -1,6 +1,7 @@
 package com.dsb.hadoop.test;
 
 import io.swagger.annotations.Api;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +16,7 @@ import paas.storage.distributedFileSystem.storage.response.StorageResponse;
  * @author 豆沙包
  * Creation time 2021/1/27 14:57
  */
+@Log4j2
 @Configuration
 public class TestIStorageController {
 
@@ -29,10 +31,10 @@ public class TestIStorageController {
      * @return
      */
     public StorageResponse getStorageInfo(String connectionId, String directory) {
-        System.out.println("====================== 存储空间管理 存储容量及使用量 开始 ============================");
+        log.info("====================== 存储空间管理 存储容量及使用量 开始 ============================");
         StorageResponse storageResponse = iStorage.getStorageInfo(connectionId, directory);
-        System.out.println(storageResponse);
-        System.out.println("====================== 存储空间管理 存储容量及使用量 结束 ============================");
+        log.info(storageResponse);
+        log.info("====================== 存储空间管理 存储容量及使用量 结束 ============================");
         return storageResponse;
     }
 }

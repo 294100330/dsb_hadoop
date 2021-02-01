@@ -1,6 +1,7 @@
 package com.dsb.hadoop.test;
 
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +16,7 @@ import paas.storage.distributedFileSystem.file.response.*;
  * @author 豆沙包
  * Creation time 2021/1/24 17:44
  */
+@Log4j2
 @Configuration
 public class TestIFileController {
 
@@ -31,10 +33,10 @@ public class TestIFileController {
     @PostMapping("create")
     @ApiOperation("创建目录")
     public CreateResponse create(String connectionId, String filePath) {
-        System.out.println("====================== 文件访问 创建目录 开始 ============================");
+        log.info("====================== 文件访问 创建目录 开始 ============================");
         CreateResponse response = iFile.create(connectionId, filePath);
-        System.out.println(response);
-        System.out.println("====================== 文件访问 创建目录 结束 ============================");
+        log.info(response);
+        log.info("====================== 文件访问 创建目录 结束 ============================");
         return response;
     }
 
@@ -50,10 +52,10 @@ public class TestIFileController {
     @PostMapping("delete")
     @ApiOperation("删除文件")
     public Response delete(String connectionId, String filePath, int objectType, int recursive) {
-        System.out.println("====================== 文件访问 删除文件 开始 ============================");
+        log.info("====================== 文件访问 删除文件 开始 ============================");
         Response response = iFile.delete(connectionId, filePath, objectType, recursive);
-        System.out.println(response);
-        System.out.println("====================== 文件访问 删除文件 结束 ============================");
+        log.info(response);
+        log.info("====================== 文件访问 删除文件 结束 ============================");
         return response;
     }
 
@@ -68,10 +70,10 @@ public class TestIFileController {
     @PostMapping("rename")
     @ApiOperation("重命名文件")
     public RenameResponse rename(String connectionId, String srcPath, String dstPath) {
-        System.out.println("====================== 文件访问 重命名文件 开始 ============================");
+        log.info("====================== 文件访问 重命名文件 开始 ============================");
         RenameResponse response = iFile.rename(connectionId, srcPath, dstPath);
-        System.out.println(response);
-        System.out.println("====================== 文件访问 重命名文件 结束 ============================");
+        log.info(response);
+        log.info("====================== 文件访问 重命名文件 结束 ============================");
         return response;
     }
 
@@ -88,10 +90,10 @@ public class TestIFileController {
     @PostMapping("move")
     @ApiOperation("移动文件")
     public Response move(String connectionId, String srcPath, String dstPath, int operator, int overwrite) {
-        System.out.println("====================== 文件访问 移动文件 开始 ============================");
+        log.info("====================== 文件访问 移动文件 开始 ============================");
         Response response = iFile.move(connectionId, srcPath, dstPath, operator, overwrite);
-        System.out.println(response);
-        System.out.println("====================== 文件访问 移动文件 结束 ============================");
+        log.info(response);
+        log.info("====================== 文件访问 移动文件 结束 ============================");
         return response;
 
     }
@@ -108,10 +110,10 @@ public class TestIFileController {
     @PostMapping("getFileList")
     @ApiOperation("获取文件列表")
     public GetFileListResponse getFileList(String connectionId, String filePath, String filter, int recursive) {
-        System.out.println("====================== 文件访问 获取文件列表 开始 ============================");
+        log.info("====================== 文件访问 获取文件列表 开始 ============================");
         GetFileListResponse getFileListResponse = iFile.getFileList(connectionId, filePath, filter, recursive);
-        System.out.println(getFileListResponse);
-        System.out.println("====================== 文件访问 获取文件列表 结束 ============================");
+        log.info(getFileListResponse);
+        log.info("====================== 文件访问 获取文件列表 结束 ============================");
         return getFileListResponse;
     }
 
@@ -123,10 +125,10 @@ public class TestIFileController {
      * @return
      */
     public FileExistResponse fileExist(String connectionId, String filePath) {
-        System.out.println("====================== 文件访问 判断文件是否存在 开始 ============================");
+        log.info("====================== 文件访问 判断文件是否存在 开始 ============================");
         FileExistResponse fileExistResponse = iFile.fileExist(connectionId, filePath);
-        System.out.println(fileExistResponse);
-        System.out.println("====================== 文件访问 判断文件是否存在 结束 ============================");
+        log.info(fileExistResponse);
+        log.info("====================== 文件访问 判断文件是否存在 结束 ============================");
         return fileExistResponse;
     }
 
@@ -140,10 +142,10 @@ public class TestIFileController {
     @PostMapping("getFileInfo")
     @ApiOperation("获取文件属性")
     public GetFileInfoResponse getFileInfo(String connectionId, String fileName) {
-        System.out.println("====================== 文件访问 获取文件属性 开始 ============================");
+        log.info("====================== 文件访问 获取文件属性 开始 ============================");
         GetFileInfoResponse getFileInfoResponse =  iFile.getFileInfo(connectionId, fileName);
-        System.out.println(getFileInfoResponse);
-        System.out.println("====================== 文件访问 获取文件属性 结束 ============================");
+        log.info(getFileInfoResponse);
+        log.info("====================== 文件访问 获取文件属性 结束 ============================");
         return getFileInfoResponse;
     }
 
@@ -158,10 +160,10 @@ public class TestIFileController {
      * @return
      */
     public Response setAuthority(String fullPath, String userGroup, String user, String authority, int beInherit) {
-        System.out.println("====================== 文件访问 文件权限设置 开始 ============================");
+        log.info("====================== 文件访问 文件权限设置 开始 ============================");
         Response response =  iFile.setAuthority(fullPath, userGroup, user, authority, beInherit);
-        System.out.println(response);
-        System.out.println("====================== 文件访问 文件权限设置 结束 ============================");
+        log.info(response);
+        log.info("====================== 文件访问 文件权限设置 结束 ============================");
         return response;
 
     }

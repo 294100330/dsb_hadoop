@@ -1,5 +1,6 @@
 package com.dsb.hadoop.test;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +16,7 @@ import java.nio.charset.Charset;
  * @author 豆沙包
  * Creation time 2021/1/25 14:17
  */
+@Log4j2
 @Configuration
 public class TestFileStreamController {
 
@@ -32,10 +34,10 @@ public class TestFileStreamController {
      * @return
      */
     public CreateResponse create(String connectionId, String filePath, int streamType, int mode) {
-        System.out.println("====================== 文件流管理 创建流 开始 ============================");
+        log.info("====================== 文件流管理 创建流 开始 ============================");
         CreateResponse createResponse = iFileStream.create(connectionId, filePath, streamType, mode);
-        System.out.println(createResponse);
-        System.out.println("====================== 文件流管理 创建流 结束 ============================");
+        log.info(createResponse);
+        log.info("====================== 文件流管理 创建流 结束 ============================");
         return createResponse;
     }
 
@@ -46,10 +48,10 @@ public class TestFileStreamController {
      * @return
      */
     public ReadResponse read(String streamId, byte[] byteArray, int offSet, int length) {
-        System.out.println("====================== 文件流管理 文件流读取 开始 ============================");
+        log.info("====================== 文件流管理 文件流读取 开始 ============================");
         ReadResponse readResponse = iFileStream.read(streamId, byteArray, offSet, length);
-        System.out.println(readResponse);
-        System.out.println("====================== 文件流管理 文件流读取 结束 ============================");
+        log.info(readResponse);
+        log.info("====================== 文件流管理 文件流读取 结束 ============================");
         return readResponse;
     }
 
@@ -61,10 +63,10 @@ public class TestFileStreamController {
      * @return
      */
     public ReadlinesResponse readlines(String streamId, int readMethod) {
-        System.out.println("====================== 文件流管理 逐行读取 开始 ============================");
+        log.info("====================== 文件流管理 逐行读取 开始 ============================");
         ReadlinesResponse readlinesResponse = iFileStream.readlines(streamId, Charset.defaultCharset().displayName(), readMethod);
-        System.out.println(readlinesResponse);
-        System.out.println("====================== 文件流管理 逐行读取 结束 ============================");
+        log.info(readlinesResponse);
+        log.info("====================== 文件流管理 逐行读取 结束 ============================");
         return readlinesResponse;
     }
 
@@ -75,10 +77,10 @@ public class TestFileStreamController {
      * @return
      */
     public WriteResponse write(String streamId, byte[] byteArray, int offSet, int length) {
-        System.out.println("====================== 文件流管理 文件流写入 开始 ============================");
+        log.info("====================== 文件流管理 文件流写入 开始 ============================");
         WriteResponse writeResponse = iFileStream.write(streamId, byteArray, offSet, length);
-        System.out.println(writeResponse);
-        System.out.println("====================== 文件流管理 文件流写入 结束 ============================");
+        log.info(writeResponse);
+        log.info("====================== 文件流管理 文件流写入 结束 ============================");
         return writeResponse;
     }
 
@@ -90,10 +92,10 @@ public class TestFileStreamController {
      * @return
      */
     public Response writeline(String streamId, String string) {
-        System.out.println("====================== 文件流管理 逐行写入 开始 ============================");
+        log.info("====================== 文件流管理 逐行写入 开始 ============================");
         Response response = iFileStream.writeline(streamId, string);
-        System.out.println(response);
-        System.out.println("====================== 文件流管理 逐行写入 结束 ============================");
+        log.info(response);
+        log.info("====================== 文件流管理 逐行写入 结束 ============================");
         return response;
     }
 
@@ -104,10 +106,10 @@ public class TestFileStreamController {
      * @return
      */
     public CloseResponse close(String streamId) {
-        System.out.println("====================== 文件流管理 关闭流 开始 ============================");
+        log.info("====================== 文件流管理 关闭流 开始 ============================");
         CloseResponse closeResponse = iFileStream.close(streamId);
-        System.out.println(closeResponse);
-        System.out.println("====================== 文件流管理 关闭流 结束 ============================");
+        log.info(closeResponse);
+        log.info("====================== 文件流管理 关闭流 结束 ============================");
         return closeResponse;
     }
 
