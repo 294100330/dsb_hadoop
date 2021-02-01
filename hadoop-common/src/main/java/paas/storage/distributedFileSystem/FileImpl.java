@@ -179,7 +179,7 @@ public class FileImpl implements IFile, ApplicationRunner {
             FileSystem fileSystem = connectionService.get(connectionId);
             Path srcPath1 = new Path(srcPath);
             Path dstPath1 = new Path(dstPath);
-            FileUtil.copy(fileSystem,srcPath1,fileSystem,dstPath1,1==operator,1==overwrite,fileSystem.getConf());
+            FileUtil.copy(fileSystem, srcPath1, fileSystem, dstPath1, 1 == operator, 1 == overwrite, fileSystem.getConf());
             response.setTaskStatus(1);
         } catch (Exception e) {
             response.setTaskStatus(0);
@@ -223,7 +223,7 @@ public class FileImpl implements IFile, ApplicationRunner {
             //处理内容
             while (remoteIterator.hasNext()) {
                 LocatedFileStatus locatedFileStatus = remoteIterator.next();
-                if (ReUtil.isMatch(locatedFileStatus.getPath().getName(), filter)) {
+                if (filter == null || ReUtil.isMatch(locatedFileStatus.getPath().getName(), filter)) {
                     Map<String, Object> map = new HashMap<>(2);
                     map.put("filepath", locatedFileStatus.getPath().getName());
                     map.put("isDir", locatedFileStatus.isDirectory() ? 1 : 0);

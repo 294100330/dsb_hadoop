@@ -48,3 +48,15 @@ hadoop:
 ### 5.1.2.4 移动文件 (move)
 ![img.png](doc/5.1.2.4移动文件.png)
 ![img.png](doc/5.1.2.4移动文件--测试结果.png)
+
+### 5.1.2.5 获取文件列表(getFileList)
+![img.png](doc/5.1.2.5获取文件列表.png)
+![img.png](doc/5.1.2.5获取文件列表--测试结果.png)
+
+### 5.1.2.6 判断文件是否存在(fileExist)
+![img.png](doc/5.1.2.6判断文件是否存在.png)
+![img.png](doc/5.1.2.6判断文件是否存在--测试结果.png)
+
+### 5.1.2.7 获取文件属性(getFileInfo)
+![img.png](doc/5.1.2.7获取文件属性.png)
+![img.png](doc/5.1.2.7获取文件属性--测试结果.png)

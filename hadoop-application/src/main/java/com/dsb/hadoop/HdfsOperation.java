@@ -1,6 +1,5 @@
 package com.dsb.hadoop;
 
-import lombok.SneakyThrows;
 import lombok.extern.java.Log;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -25,12 +24,12 @@ import java.util.logging.Level;
 public class HdfsOperation {
     private FileSystem hdfs;
 
-    @SneakyThrows
     public static void main(String[] args) {
         HdfsOperation hdfsOperation = new HdfsOperation();
-        hdfsOperation.hdfs = HdfsOperation.getFileSystem();
         try {
-            hdfsOperation.copyLocalFileToHDFS("D:\\hadoop.txt","doushabao1");
+            hdfsOperation.hdfs = HdfsOperation.getFileSystem();
+            RemoteIterator<LocatedFileStatus> remoteIterator = hdfsOperation.hdfs.listFiles(new Path("doushabao1"), true);
+            System.out.println(remoteIterator);
         } catch (Exception e) {
             log.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -408,10 +407,10 @@ public class HdfsOperation {
 
         try {
             Path f = new Path(path);
-            FSDataInputStream fsDataInputStream =   hdfs.open(f);
+            FSDataInputStream fsDataInputStream = hdfs.open(f);
             FSDataOutputStream os = hdfs.append(f);
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8));// 以UTF-8格式写入文件，不乱码
-            IOUtils.copyBytes(fsDataInputStream,os,8);
+            IOUtils.copyBytes(fsDataInputStream, os, 8);
             writer.write(text);
             writer.close();
             os.close();

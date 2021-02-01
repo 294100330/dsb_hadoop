@@ -50,7 +50,7 @@ public class TestHadoopApplication {
     public void test3() {
         try {
             String path = "doushabao";
-            testIFileController.move(createResponse.getConnectionId(), "doushabao1/hadoop1.txt", "doushabao/hadoop.txt", 1, 1);
+            testIFileController.getFileInfo(createResponse.getConnectionId(), path);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
