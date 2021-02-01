@@ -47,7 +47,7 @@ public class TestIConnectionController {
         log.info("====================== 文件流管理 创建流 开始 ============================");
         Response response = iConnection.close(connectionId);
         log.info(response);
-        log.info("====================== 文件流管理 创建流 开始 ============================");
+        log.info("====================== 文件流管理 关闭流 结束 ============================");
         return response;
     }
 
