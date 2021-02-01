@@ -80,3 +80,15 @@ hadoop:
 ### 5.1.3.4 文件流写入(write)
 ![img.png](doc/5.1.3.4文件流写入.png)
 ![img.png](doc/5.1.3.4文件流写入--测试结果.png)
+
+### 5.1.3.5 逐行写入(writeline)
+![img.png](doc/5.1.3.5逐行写入.png)
+![img.png](doc/5.1.3.5逐行写入--测试结果.png)
+
+### 5.1.3.6 关闭流 (close)
+![img.png](doc/5.1.3.6关闭流.png)
+![img.png](doc/5.1.3.6关闭流--测试结果.png)
+
+### 5.1.4.1 存储容量及使用量(getStorageInfo)
+![img.png](doc/5.1.4.1存储容量及使用量.png)
+![img.png](doc/5.1.4.1存储容量及使用量--测试结果.png)

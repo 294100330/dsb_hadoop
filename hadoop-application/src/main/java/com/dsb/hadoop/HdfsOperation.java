@@ -28,7 +28,7 @@ public class HdfsOperation {
         HdfsOperation hdfsOperation = new HdfsOperation();
         try {
             hdfsOperation.hdfs = HdfsOperation.getFileSystem();
-            hdfsOperation.copyLocalFileToHDFS("D:\\hadoop.txt","doushabao2");
+            hdfsOperation.copyLocalFileToHDFS("E:\\CentOS-7-x86_64-DVD-2003.iso","doushabao2");
         } catch (Exception e) {
             log.log(Level.SEVERE, e.getMessage(), e);
         }

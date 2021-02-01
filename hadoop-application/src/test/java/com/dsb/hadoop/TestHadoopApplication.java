@@ -54,14 +54,7 @@ public class TestHadoopApplication {
     @Test
     public void test3() {
         try {
-            String path = "doushabao3/hadoop.txt";
-            paas.storage.distributedFileSystem.fileStream.response.CreateResponse createResponse1 =
-                    testFileStreamController.create(createResponse.getConnectionId(), path, 2, 2);
-            InputStream inputStream = FileUtil.getInputStream("D:\\hadoop.txt");
-            byte[] bytes = new byte[inputStream.available()];
-            inputStream.read(bytes);
-            testFileStreamController.write(createResponse1.getStreamId(),bytes,0,bytes.length);
-
+            testIStorageController.getStorageInfo(createResponse.getConnectionId(),"doushabao2");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

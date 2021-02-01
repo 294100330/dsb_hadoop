@@ -3,9 +3,6 @@ package paas.storage.distributedFileSystem;
 import lombok.extern.log4j.Log4j2;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.FileUtil;
-import org.apache.hadoop.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
@@ -94,7 +91,7 @@ public class FileStreamImpl implements IFileStream {
             AssertUtils.isTrue(byteArray != null, "byteArray:字节数组不能为空");
 
             FSDataInputStream fsDataInputStream = iFileInputStreamService.get(streamId);
-            fsDataInputStream.read(byteArray,offSet,length);
+            fsDataInputStream.read(byteArray, offSet, length);
             readResponse.setLength(byteArray.length);
         } catch (IOException e) {
             readResponse.setTaskStatus(0);
@@ -206,14 +203,13 @@ public class FileStreamImpl implements IFileStream {
             AssertUtils.charLengthLe(string, 4000, "string:字符串字符定长不能超过4000");
 
             IFileOutStreamService.IFileOutStreamData iFileOutStreamData = iFileOutStreamService.get(streamId);
-            FileSystem fileSystem = iFileOutStreamData.getFileSystem();
-            FSDataInputStream fsDataInputStream = fileSystem.open(iFileOutStreamData.getFilePath());
             FSDataOutputStream fsDataOutputStream = iFileOutStreamData.getFsDataOutputStream();
-            IOUtils.copyBytes(fsDataInputStream, fsDataOutputStream, 4096);
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fsDataOutputStream.getWrappedStream(), StandardCharsets.UTF_8);
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fsDataOutputStream, StandardCharsets.UTF_8);
 //             以UTF-8格式写入文件，不乱码
             BufferedWriter writer = new BufferedWriter(outputStreamWriter);
             writer.write(string);
+            writer.flush();
+            outputStreamWriter.flush();
             response.setTaskStatus(1);
         } catch (Exception e) {
             response.setTaskStatus(0);
