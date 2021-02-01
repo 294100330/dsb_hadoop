@@ -4,6 +4,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -93,7 +94,7 @@ public class FileStreamImpl implements IFileStream {
             AssertUtils.isTrue(byteArray != null, "byteArray:字节数组不能为空");
 
             FSDataInputStream fsDataInputStream = iFileInputStreamService.get(streamId);
-            IOUtils.wrappedReadForCompressedData(fsDataInputStream, byteArray, offSet, length);
+            fsDataInputStream.read(byteArray,offSet,length);
             readResponse.setLength(byteArray.length);
         } catch (IOException e) {
             readResponse.setTaskStatus(0);
@@ -139,7 +140,7 @@ public class FileStreamImpl implements IFileStream {
                 //2 表示全部读取。
             } else if (2 == readMethod) {
                 byte[] bytes = new byte[fsDataInputStream.available()];
-                IOUtils.readFully(fsDataInputStream, bytes, 0, bytes.length);
+                fsDataInputStream.read(bytes);
                 readlinesResponse.setStringList(new String(bytes, encode));
             }
             readlinesResponse.setTaskStatus(1);

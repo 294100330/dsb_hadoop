@@ -1,5 +1,6 @@
 package com.dsb.hadoop;
 
+import cn.hutool.core.io.FileUtil;
 import com.dsb.hadoop.test.TestFileStreamController;
 import com.dsb.hadoop.test.TestIConnectionController;
 import com.dsb.hadoop.test.TestIFileController;
@@ -11,7 +12,11 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.StringUtils;
 import paas.storage.distributedFileSystem.connection.response.CreateResponse;
+import paas.storage.distributedFileSystem.fileStream.response.ReadlinesResponse;
+
+import java.io.InputStream;
 
 /**
  * @author luowei
@@ -49,8 +54,14 @@ public class TestHadoopApplication {
     @Test
     public void test3() {
         try {
-            String path = "doushabao";
-            testIFileController.getFileInfo(createResponse.getConnectionId(), path);
+            String path = "doushabao3/hadoop.txt";
+            paas.storage.distributedFileSystem.fileStream.response.CreateResponse createResponse1 =
+                    testFileStreamController.create(createResponse.getConnectionId(), path, 2, 2);
+            InputStream inputStream = FileUtil.getInputStream("D:\\hadoop.txt");
+            byte[] bytes = new byte[inputStream.available()];
+            inputStream.read(bytes);
+            testFileStreamController.write(createResponse1.getStreamId(),bytes,0,bytes.length);
+
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

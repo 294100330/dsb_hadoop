@@ -28,8 +28,7 @@ public class HdfsOperation {
         HdfsOperation hdfsOperation = new HdfsOperation();
         try {
             hdfsOperation.hdfs = HdfsOperation.getFileSystem();
-            RemoteIterator<LocatedFileStatus> remoteIterator = hdfsOperation.hdfs.listFiles(new Path("doushabao1"), true);
-            System.out.println(remoteIterator);
+            hdfsOperation.copyLocalFileToHDFS("D:\\hadoop.txt","doushabao2");
         } catch (Exception e) {
             log.log(Level.SEVERE, e.getMessage(), e);
         }

@@ -60,3 +60,23 @@ hadoop:
 ### 5.1.2.7 获取文件属性(getFileInfo)
 ![img.png](doc/5.1.2.7获取文件属性.png)
 ![img.png](doc/5.1.2.7获取文件属性--测试结果.png)
+
+### 5.1.2.8 文件权限设置 （authority）
+![img.png](doc/5.1.2.8文件权限设置.png)
+![img.png](doc/5.1.2.8文件权限设置--测试结果.png)
+
+### 5.1.3.1 创建流(create)
+![img.png](doc/5.1.3.1创建流.png)
+![img.png](doc/5.1.3.1创建流--测试结果.png)
+
+### 5.1.3.2 文件流读取(read)
+![img.png](doc/5.1.3.2文件流读取.png)
+![img.png](doc/5.1.3.2文件流读取--测试结果.png)
+
+### 5.1.3.3 逐行读取(readlines)
+![img.png](doc/5.1.3.3逐行读取.png)
+![img.png](doc/5.1.3.3逐行读取--测试结果.png)
+
+### 5.1.3.4 文件流写入(write)
+![img.png](doc/5.1.3.4文件流写入.png)
+![img.png](doc/5.1.3.4文件流写入--测试结果.png)
