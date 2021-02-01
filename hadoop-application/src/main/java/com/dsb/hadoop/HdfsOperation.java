@@ -27,10 +27,10 @@ public class HdfsOperation {
 
     @SneakyThrows
     public static void main(String[] args) {
-
         HdfsOperation hdfsOperation = new HdfsOperation();
+        hdfsOperation.hdfs = HdfsOperation.getFileSystem();
         try {
-            hdfsOperation.delete("/");
+            hdfsOperation.copyLocalFileToHDFS("D:\\hadoop.txt","doushabao1");
         } catch (Exception e) {
             log.log(Level.SEVERE, e.getMessage(), e);
         }

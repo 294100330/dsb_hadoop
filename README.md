@@ -25,7 +25,6 @@ hadoop:
   config:{额外配置}
 ```
 ## 测试和截图
-
 #### 5.1.1.1 创建文件系统连接(create)
 ![img.png](doc/5.1.1.1创建文件系统连接.png)
 ![img.png](doc/5.1.1.1创建文件系统连接--测试结果.png)
@@ -41,3 +40,11 @@ hadoop:
 ### 5.1.2.2 删除文件(delete)
 ![img.png](doc/5.1.2.2删除文件.png)
 ![img.png](doc/5.1.2.2删除文件--测试结果.png)
+
+### 5.1.2.3 重命名文件(rename)
+![img.png](doc/5.1.2.3重命名文件.png)
+![img.png](doc/5.1.2.3重命名文件--测试结果.png)
+
+### 5.1.2.4 移动文件 (move)
+![img.png](doc/5.1.2.4移动文件.png)
+![img.png](doc/5.1.2.4移动文件--测试结果.png)

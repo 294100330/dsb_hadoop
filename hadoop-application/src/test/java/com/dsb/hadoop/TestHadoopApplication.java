@@ -48,10 +48,13 @@ public class TestHadoopApplication {
 
     @Test
     public void test3() {
-        String path = "doushabao";
-        paas.storage.distributedFileSystem.file.response.CreateResponse createResponse1 = testIFileController.create(createResponse.getConnectionId(), path);
-//        testIFileController.getFileInfo();
-        testIFileController.delete(createResponse.getConnectionId(),path,1,1);
+        try {
+            String path = "doushabao";
+            testIFileController.move(createResponse.getConnectionId(), "doushabao1/hadoop1.txt", "doushabao/hadoop.txt", 1, 1);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+
     }
 
 }

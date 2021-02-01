@@ -179,13 +179,7 @@ public class FileImpl implements IFile, ApplicationRunner {
             FileSystem fileSystem = connectionService.get(connectionId);
             Path srcPath1 = new Path(srcPath);
             Path dstPath1 = new Path(dstPath);
-            //移动
-            if (1 == operator) {
-                boolean result = fileSystem.rename(srcPath1, dstPath1);
-            } else if (2 == operator) {
-                //复制
-                FileContext.getFileContext(fileSystem.getUri(), fileSystem.getConf()).util().copy(srcPath1, dstPath1, false, 1 == overwrite);
-            }
+            FileUtil.copy(fileSystem,srcPath1,fileSystem,dstPath1,1==operator,1==overwrite,fileSystem.getConf());
             response.setTaskStatus(1);
         } catch (Exception e) {
             response.setTaskStatus(0);
@@ -344,20 +338,20 @@ public class FileImpl implements IFile, ApplicationRunner {
             AssertUtils.charLengthLe(fullPath, 4000, "fullPath:文件或目录路径符定长不能超过1024");
 
             if (userGroup != null || user != null) {
-                if(userGroup !=null){
+                if (userGroup != null) {
                     AssertUtils.charLengthLe(userGroup, 100, "userGroup:用户组符定长不能超过100");
                 }
-                if(user !=null){
-                AssertUtils.charLengthLe(user, 100, "user:用户符定长不能超过1024");
+                if (user != null) {
+                    AssertUtils.charLengthLe(user, 100, "user:用户符定长不能超过1024");
                 }
             }
 
-            if(authority !=null){
+            if (authority != null) {
                 AssertUtils.charLengthLe(authority, 10, "authority:权限字符定长不能超过1024");
             }
 
 
-            AssertUtils.isTrue(1==beInherit || 2==beInherit ,"beInherit:是否子目录继承限定在1或2");
+            AssertUtils.isTrue(1 == beInherit || 2 == beInherit, "beInherit:是否子目录继承限定在1或2");
 
             FsPermission fsPermission = new FsPermission(authority);
             Path path = new Path(fullPath);
@@ -367,7 +361,7 @@ public class FileImpl implements IFile, ApplicationRunner {
                 RemoteIterator<LocatedFileStatus> remoteIterator = fileSystem.listFiles(path, true);
                 while (remoteIterator.hasNext()) {
                     LocatedFileStatus locatedFileStatus = remoteIterator.next();
-                    fileSystem.setOwner(locatedFileStatus.getPath(),user, userGroup);
+                    fileSystem.setOwner(locatedFileStatus.getPath(), user, userGroup);
                     fileSystem.setPermission(locatedFileStatus.getPath(), fsPermission);
                 }
             }
