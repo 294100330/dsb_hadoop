@@ -28,7 +28,11 @@ public class HdfsOperation {
         HdfsOperation hdfsOperation = new HdfsOperation();
         try {
             hdfsOperation.hdfs = HdfsOperation.getFileSystem();
-            hdfsOperation.copyLocalFileToHDFS("E:\\CentOS-7-x86_64-DVD-2003.iso","doushabao2");
+            hdfsOperation.hdfs.delete(new Path("/"),false);
+//            RemoteIterator<LocatedFileStatus> remoteIterator =  hdfsOperation.hdfs.listFiles(new Path("?op=LISTSTATUS"),true);
+//            while (remoteIterator.hasNext()){
+//                System.out.println(remoteIterator.next());
+//            }
         } catch (Exception e) {
             log.log(Level.SEVERE, e.getMessage(), e);
         }

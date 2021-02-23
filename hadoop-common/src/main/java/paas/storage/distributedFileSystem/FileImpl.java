@@ -100,7 +100,20 @@ public class FileImpl implements IFile, ApplicationRunner {
 
             FileSystem fileSystem = connectionService.get(connectionId);
             Path path = new Path(filePath);
-            fileSystem.delete(path, 1 == objectType);
+            FileStatus fileStatus = fileSystem.getFileStatus(path);
+            //文件夹
+            if (1 == objectType) {
+                AssertUtils.isTrue(fileStatus.isDirectory(), "目标路径不是文件夹");
+                //文件
+            } else {
+                AssertUtils.isTrue(fileStatus.isFile(), "目标路径不是文件夹");
+            }
+            //删除
+            RemoteIterator<LocatedFileStatus> remoteIterator = fileSystem.listFiles(path, 1 == recursive);
+            while (remoteIterator.hasNext()) {
+                fileSystem.delete(remoteIterator.next().getPath(), true);
+            }
+
             response.setTaskStatus(1);
         } catch (Exception e) {
             response.setTaskStatus(0);
